@@ -4,6 +4,7 @@ import com.warplay.campaign.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
@@ -31,4 +32,12 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     // Find by Discord handle
     Optional<User> findByDiscordHandle(String discordHandle);
+
+    // Find users who play a specific game system
+    @Query("SELECT DISTINCT u FROM User u JOIN u.userGameSystems ugs WHERE ugs.gameSystem.id = :gameSystemId AND ugs.isActive = true AND u.deletedTimestamp IS NULL")
+    List<User> findUsersByGameSystemId(@Param("gameSystemId") Long gameSystemId);
+
+    // Find users who play a specific game system with minimum skill rating
+    @Query("SELECT DISTINCT u FROM User u JOIN u.userGameSystems ugs WHERE ugs.gameSystem.id = :gameSystemId AND ugs.skillRating >= :minRating AND ugs.isActive = true AND u.deletedTimestamp IS NULL")
+    List<User> findUsersByGameSystemIdAndMinSkillRating(@Param("gameSystemId") Long gameSystemId, @Param("minRating") Integer minRating);
 }

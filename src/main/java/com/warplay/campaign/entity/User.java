@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "users")
@@ -42,6 +44,10 @@ public class User {
 
     @Column
     private LocalDateTime deletedTimestamp;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<UserGameSystem> userGameSystems = new ArrayList<>();
+
 
     // Constructors
     public User() {
@@ -87,6 +93,9 @@ public class User {
 
     public LocalDateTime getDeletedTimestamp() { return deletedTimestamp; }
     public void setDeletedTimestamp(LocalDateTime deletedTimestamp) { this.deletedTimestamp = deletedTimestamp; }
+
+    public List<UserGameSystem> getUserGameSystems() { return userGameSystems; }
+    public void setUserGameSystems(List<UserGameSystem> userGameSystems) { this.userGameSystems = userGameSystems; }
 
     // Utility methods
     public void updateLastLogin() {
