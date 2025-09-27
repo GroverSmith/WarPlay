@@ -1,11 +1,18 @@
 package com.warplay.campaign.controller;
 
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.gson.GsonFactory;
+
 import com.warplay.campaign.entity.User;
 import com.warplay.campaign.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -14,6 +21,80 @@ public class AuthController {
 
     @Autowired
     private UserRepository userRepository;
+
+    @PostMapping("/google-signin")
+    public ResponseEntity<?> googleSignIn(@RequestBody Map<String, String> payload) {
+        String idTokenString = payload.get("idToken");
+
+        GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(
+                new NetHttpTransport(),
+                GsonFactory.getDefaultInstance())
+                .setAudience(Collections.singletonList("954824091811-cmev31d6ed8t005e09fl7njbijc8ujoq.apps.googleusercontent.com"))
+                .build();
+
+        try {
+            GoogleIdToken idToken = verifier.verify(idTokenString);
+            if (idToken != null) {
+                GoogleIdToken.Payload tokenPayload = idToken.getPayload();
+                String email = tokenPayload.getEmail();
+                String name = (String) tokenPayload.get("name");
+                String pictureUrl = (String) tokenPayload.get("picture");
+                String googleId = tokenPayload.getSubject();
+
+
+
+
+
+                // Check if user already exists by Google ID
+                Optional<User> existingUser = userRepository.findByGoogleId(googleId);
+
+                User user;
+                boolean isNewUser = false;
+
+                if (existingUser.isPresent()) {
+                    // Update existing user
+                    user = existingUser.get();
+                    user.setName(name); // Update name in case it changed
+                    user.setEmail(email); // Update email in case it changed
+                    user.setProfilePictureUrl(pictureUrl);
+                    user.updateLastLogin();
+                } else {
+                    // Check if user exists with same email but no Google ID (shouldn't happen with OAuth)
+                    Optional<User> emailUser = userRepository.findByEmail(email);
+                    if (emailUser.isPresent()) {
+                        // Link Google ID to existing email user
+                        user = emailUser.get();
+                        user.setGoogleId(googleId);
+                        user.setName(name);
+                        user.setProfilePictureUrl(pictureUrl);
+                        user.updateLastLogin();
+                    } else {
+                        // Create completely new user
+                        user = new User(googleId, email, name, pictureUrl);
+                        isNewUser = true;
+                    }
+                }
+
+                // Save user
+                User savedUser = userRepository.save(user);
+
+                // TODO: Return user data or session token
+
+
+
+                return ResponseEntity.ok().body(Map.of(
+                        "message", "User authenticated successfully",
+                        "email", email,
+                        "name", name,
+                        "googleId", googleId
+                ));
+            } else {
+                return ResponseEntity.badRequest().body(Map.of("error", "Invalid ID token"));
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(Map.of("error", "Internal server error: " + e.getMessage()));
+        }
+    }
 
     // Login/Register endpoint for Google OAuth
     @PostMapping("/google-login")
