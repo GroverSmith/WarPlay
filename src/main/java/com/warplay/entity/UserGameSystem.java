@@ -1,4 +1,4 @@
-package com.warplay.campaign.entity;
+package com.warplay.entity;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;

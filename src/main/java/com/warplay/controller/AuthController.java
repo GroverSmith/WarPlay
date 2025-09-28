@@ -1,12 +1,14 @@
-package com.warplay.campaign.controller;
+package com.warplay.controller;
 
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
 
-import com.warplay.campaign.entity.User;
-import com.warplay.campaign.repository.UserRepository;
+import com.warplay.entity.User;
+import com.warplay.repository.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,6 +20,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
+    private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
 
     @Autowired
     private UserRepository userRepository;
@@ -25,6 +28,8 @@ public class AuthController {
     @PostMapping("/google-signin")
     public ResponseEntity<?> googleSignIn(@RequestBody Map<String, String> payload) {
         String idTokenString = payload.get("idToken");
+
+        logger.info("user sign-in attempt with payload: {}", payload);
 
         GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(
                 new NetHttpTransport(),
@@ -34,16 +39,13 @@ public class AuthController {
 
         try {
             GoogleIdToken idToken = verifier.verify(idTokenString);
+            logger.info("verifier returned token {}", idToken);
             if (idToken != null) {
                 GoogleIdToken.Payload tokenPayload = idToken.getPayload();
                 String email = tokenPayload.getEmail();
                 String name = (String) tokenPayload.get("name");
                 String pictureUrl = (String) tokenPayload.get("picture");
                 String googleId = tokenPayload.getSubject();
-
-
-
-
 
                 // Check if user already exists by Google ID
                 Optional<User> existingUser = userRepository.findByGoogleId(googleId);
@@ -54,6 +56,7 @@ public class AuthController {
                 if (existingUser.isPresent()) {
                     // Update existing user
                     user = existingUser.get();
+                    logger.info("found existing user {}", user);
                     user.setName(name); // Update name in case it changed
                     user.setEmail(email); // Update email in case it changed
                     user.setProfilePictureUrl(pictureUrl);
@@ -62,6 +65,7 @@ public class AuthController {
                     // Check if user exists with same email but no Google ID (shouldn't happen with OAuth)
                     Optional<User> emailUser = userRepository.findByEmail(email);
                     if (emailUser.isPresent()) {
+                        logger.warn("found user with same email {} but different google id {}. Will sync user to new google id.", email, emailUser);
                         // Link Google ID to existing email user
                         user = emailUser.get();
                         user.setGoogleId(googleId);
@@ -70,7 +74,9 @@ public class AuthController {
                         user.updateLastLogin();
                     } else {
                         // Create completely new user
+
                         user = new User(googleId, email, name, pictureUrl);
+                        logger.info("new user to create: {}", user);
                         isNewUser = true;
                     }
                 }
@@ -78,6 +84,7 @@ public class AuthController {
                 // Save user
                 User savedUser = userRepository.save(user);
 
+                logger.info("saved user: {}", savedUser);
                 // TODO: Return user data or session token
 
 
@@ -89,9 +96,11 @@ public class AuthController {
                         "googleId", googleId
                 ));
             } else {
+                logger.error("invalid ID token:{} ", idTokenString);
                 return ResponseEntity.badRequest().body(Map.of("error", "Invalid ID token"));
             }
         } catch (Exception e) {
+            logger.error("error while processing login for {}", payload, e);
             return ResponseEntity.status(500).body(Map.of("error", "Internal server error: " + e.getMessage()));
         }
     }
@@ -100,6 +109,7 @@ public class AuthController {
     @PostMapping("/google-login")
     public ResponseEntity<AuthResponse> googleLogin(@RequestBody GoogleLoginRequest request) {
 
+        logger.info("user log-in attempt with payload: {}", request);
         // Validate required fields
         if (request.getGoogleId() == null || request.getEmail() == null || request.getName() == null) {
             return ResponseEntity.badRequest().build();
@@ -150,6 +160,7 @@ public class AuthController {
     // Logout endpoint (optional - mainly for frontend state management)
     @PostMapping("/logout")
     public ResponseEntity<Object> logout() {
+        logger.info("user logout");
         return ResponseEntity.ok(new Object() {
             public final String message = "Logged out successfully";
         });

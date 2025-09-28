@@ -1,6 +1,6 @@
-package com.warplay.campaign.repository;
+package com.warplay.repository;
 
-import com.warplay.campaign.entity.GameSystem;
+import com.warplay.entity.GameSystem;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;

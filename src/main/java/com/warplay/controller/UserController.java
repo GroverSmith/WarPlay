@@ -1,7 +1,9 @@
-package com.warplay.campaign.controller;
+package com.warplay.controller;
 
-import com.warplay.campaign.entity.User;
-import com.warplay.campaign.repository.UserRepository;
+import com.warplay.entity.User;
+import com.warplay.repository.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,6 +14,8 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
+
+    private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
     @Autowired
     private UserRepository userRepository;

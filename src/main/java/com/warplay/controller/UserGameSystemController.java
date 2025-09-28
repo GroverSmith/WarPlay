@@ -1,11 +1,11 @@
-package com.warplay.campaign.controller;
+package com.warplay.controller;
 
-import com.warplay.campaign.entity.UserGameSystem;
-import com.warplay.campaign.entity.User;
-import com.warplay.campaign.entity.GameSystem;
-import com.warplay.campaign.repository.UserGameSystemRepository;
-import com.warplay.campaign.repository.UserRepository;
-import com.warplay.campaign.repository.GameSystemRepository;
+import com.warplay.entity.UserGameSystem;
+import com.warplay.entity.User;
+import com.warplay.entity.GameSystem;
+import com.warplay.repository.UserGameSystemRepository;
+import com.warplay.repository.UserRepository;
+import com.warplay.repository.GameSystemRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

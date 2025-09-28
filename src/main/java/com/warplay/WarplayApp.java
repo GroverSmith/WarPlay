@@ -1,4 +1,4 @@
-package com.warplay.campaign;
+package com.warplay;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
