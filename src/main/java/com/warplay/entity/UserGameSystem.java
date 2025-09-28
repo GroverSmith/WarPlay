@@ -1,6 +1,9 @@
 package com.warplay.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
+import org.hibernate.annotations.CreationTimestamp;
+
 import java.time.LocalDateTime;
 
 @Entity
@@ -12,81 +15,198 @@ public class UserGameSystem {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
+    @NotNull
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @ManyToOne
+    @NotNull
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "game_system_id", nullable = false)
     private GameSystem gameSystem;
 
-    @Column
-    private Integer skillRating; // 1-10 self-assessment
+    @Min(value = 1, message = "Self rating must be at least 1")
+    @Max(value = 10, message = "Self rating cannot exceed 10")
+    @Column(name = "self_rating")
+    private Integer selfRating;
 
-    @Column
+    @Min(value = 0, message = "Years of experience cannot be negative")
+    @Column(name = "years_experience")
     private Integer yearsExperience;
 
-    @Column
+    @Min(value = 0, message = "Games per year cannot be negative")
+    @Column(name = "games_per_year")
     private Integer gamesPerYear;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(name = "notes", length = 1000)
     private String notes;
 
-    @Column(nullable = false)
+    @Column(name = "is_active", nullable = false)
     private Boolean isActive = true;
 
-    @Column(nullable = false, updatable = false)
+    @CreationTimestamp
+    @Column(name = "created_timestamp", nullable = false, updatable = false)
     private LocalDateTime createdTimestamp;
 
-    @Column(nullable = false)
-    private LocalDateTime lastUpdatedTimestamp;
+    @Column(name = "updated_timestamp")
+    private LocalDateTime updatedTimestamp;
 
     // Constructors
-    public UserGameSystem() {
-        this.createdTimestamp = LocalDateTime.now();
-        this.lastUpdatedTimestamp = LocalDateTime.now();
+    public UserGameSystem() {}
+
+    public UserGameSystem(User user, GameSystem gameSystem) {
+        this.user = user;
+        this.gameSystem = gameSystem;
         this.isActive = true;
     }
 
-    public UserGameSystem(User user, GameSystem gameSystem) {
-        this();
+    public UserGameSystem(User user, GameSystem gameSystem, Integer selfRating,
+                          Integer yearsExperience, Integer gamesPerYear, String notes) {
         this.user = user;
         this.gameSystem = gameSystem;
+        this.selfRating = selfRating;
+        this.yearsExperience = yearsExperience;
+        this.gamesPerYear = gamesPerYear;
+        this.notes = notes;
+        this.isActive = true;
     }
 
     // Getters and Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public Long getId() {
+        return id;
+    }
 
-    public User getUser() { return user; }
-    public void setUser(User user) { this.user = user; }
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-    public GameSystem getGameSystem() { return gameSystem; }
-    public void setGameSystem(GameSystem gameSystem) { this.gameSystem = gameSystem; }
+    public User getUser() {
+        return user;
+    }
 
-    public Integer getSkillRating() { return skillRating; }
-    public void setSkillRating(Integer skillRating) { this.skillRating = skillRating; }
+    public void setUser(User user) {
+        this.user = user;
+    }
 
-    public Integer getYearsExperience() { return yearsExperience; }
-    public void setYearsExperience(Integer yearsExperience) { this.yearsExperience = yearsExperience; }
+    public GameSystem getGameSystem() {
+        return gameSystem;
+    }
 
-    public Integer getGamesPerYear() { return gamesPerYear; }
-    public void setGamesPerYear(Integer gamesPerYear) { this.gamesPerYear = gamesPerYear; }
+    public void setGameSystem(GameSystem gameSystem) {
+        this.gameSystem = gameSystem;
+    }
 
-    public String getNotes() { return notes; }
-    public void setNotes(String notes) { this.notes = notes; }
+    public Integer getSelfRating() {
+        return selfRating;
+    }
 
-    public Boolean getIsActive() { return isActive; }
-    public void setIsActive(Boolean isActive) { this.isActive = isActive; }
+    public void setSelfRating(Integer selfRating) {
+        this.selfRating = selfRating;
+    }
 
-    public LocalDateTime getCreatedTimestamp() { return createdTimestamp; }
-    public void setCreatedTimestamp(LocalDateTime createdTimestamp) { this.createdTimestamp = createdTimestamp; }
+    public Integer getYearsExperience() {
+        return yearsExperience;
+    }
 
-    public LocalDateTime getLastUpdatedTimestamp() { return lastUpdatedTimestamp; }
-    public void setLastUpdatedTimestamp(LocalDateTime lastUpdatedTimestamp) { this.lastUpdatedTimestamp = lastUpdatedTimestamp; }
+    public void setYearsExperience(Integer yearsExperience) {
+        this.yearsExperience = yearsExperience;
+    }
+
+    public Integer getGamesPerYear() {
+        return gamesPerYear;
+    }
+
+    public void setGamesPerYear(Integer gamesPerYear) {
+        this.gamesPerYear = gamesPerYear;
+    }
+
+    public String getNotes() {
+        return notes;
+    }
+
+    public void setNotes(String notes) {
+        this.notes = notes;
+    }
+
+    public Boolean getIsActive() {
+        return isActive;
+    }
+
+    public void setIsActive(Boolean isActive) {
+        this.isActive = isActive;
+        if (isActive) {
+            this.updatedTimestamp = LocalDateTime.now();
+        }
+    }
+
+    public LocalDateTime getCreatedTimestamp() {
+        return createdTimestamp;
+    }
+
+    public void setCreatedTimestamp(LocalDateTime createdTimestamp) {
+        this.createdTimestamp = createdTimestamp;
+    }
+
+    public LocalDateTime getUpdatedTimestamp() {
+        return updatedTimestamp;
+    }
+
+    public void setUpdatedTimestamp(LocalDateTime updatedTimestamp) {
+        this.updatedTimestamp = updatedTimestamp;
+    }
 
     // Utility methods
+    public boolean isActive() {
+        return isActive != null && isActive;
+    }
+
     public void updateTimestamp() {
-        this.lastUpdatedTimestamp = LocalDateTime.now();
+        this.updatedTimestamp = LocalDateTime.now();
+    }
+
+    public void deactivate() {
+        this.isActive = false;
+        this.updatedTimestamp = LocalDateTime.now();
+    }
+
+    public void activate() {
+        this.isActive = true;
+        this.updatedTimestamp = LocalDateTime.now();
+    }
+
+    public String getExperienceLevel() {
+        if (yearsExperience == null) return "Unknown";
+        if (yearsExperience == 0) return "Beginner";
+        if (yearsExperience < 2) return "Novice";
+        if (yearsExperience < 5) return "Intermediate";
+        if (yearsExperience < 10) return "Advanced";
+        return "Expert";
+    }
+
+    public String getActivityLevel() {
+        if (gamesPerYear == null) return "Unknown";
+        if (gamesPerYear == 0) return "Inactive";
+        if (gamesPerYear < 12) return "Casual";
+        if (gamesPerYear < 24) return "Regular";
+        if (gamesPerYear < 52) return "Active";
+        return "Very Active";
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        this.updatedTimestamp = LocalDateTime.now();
+    }
+
+    @Override
+    public String toString() {
+        return "UserGameSystem{" +
+                "id=" + id +
+                ", userId=" + (user != null ? user.getId() : null) +
+                ", gameSystemId=" + (gameSystem != null ? gameSystem.getId() : null) +
+                ", selfRating=" + selfRating +
+                ", yearsExperience=" + yearsExperience +
+                ", gamesPerYear=" + gamesPerYear +
+                ", isActive=" + isActive +
+                '}';
     }
 }
