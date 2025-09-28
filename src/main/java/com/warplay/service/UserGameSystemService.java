@@ -153,7 +153,7 @@ public class UserGameSystemService {
             if (isUpdate) {
                 // Update existing
                 userGameSystem = existing.get();
-                userGameSystem.setSelfRating(request.getSkillRating());
+                userGameSystem.setskillRating(request.getSkillRating());
                 userGameSystem.setYearsExperience(request.getYearsExperience());
                 userGameSystem.setGamesPerYear(request.getGamesPerYear());
                 userGameSystem.setNotes(request.getNotes());
@@ -162,7 +162,7 @@ public class UserGameSystemService {
             } else {
                 // Create new
                 userGameSystem = new UserGameSystem(user.get(), gameSystem.get());
-                userGameSystem.setSelfRating(request.getSkillRating());
+                userGameSystem.setskillRating(request.getSkillRating());
                 userGameSystem.setYearsExperience(request.getYearsExperience());
                 userGameSystem.setGamesPerYear(request.getGamesPerYear());
                 userGameSystem.setNotes(request.getNotes());
@@ -224,7 +224,7 @@ public class UserGameSystemService {
                 validateUserGameSystemRequest(request);
 
                 UserGameSystem userGameSystem = existingOpt.get();
-                userGameSystem.setSelfRating(request.getSkillRating());
+                userGameSystem.setskillRating(request.getSkillRating());
                 userGameSystem.setYearsExperience(request.getYearsExperience());
                 userGameSystem.setGamesPerYear(request.getGamesPerYear());
                 userGameSystem.setNotes(request.getNotes());

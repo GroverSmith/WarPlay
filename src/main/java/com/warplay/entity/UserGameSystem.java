@@ -25,10 +25,10 @@ public class UserGameSystem {
     @JoinColumn(name = "game_system_id", nullable = false)
     private GameSystem gameSystem;
 
-    @Min(value = 1, message = "Self rating must be at least 1")
-    @Max(value = 10, message = "Self rating cannot exceed 10")
-    @Column(name = "self_rating")
-    private Integer selfRating;
+    @Min(value = 1, message = "skill rating must be at least 1")
+    @Max(value = 10, message = "skill rating cannot exceed 10")
+    @Column(name = "skill_rating")
+    private Integer skillRating;
 
     @Min(value = 0, message = "Years of experience cannot be negative")
     @Column(name = "years_experience")
@@ -60,11 +60,11 @@ public class UserGameSystem {
         this.isActive = true;
     }
 
-    public UserGameSystem(User user, GameSystem gameSystem, Integer selfRating,
+    public UserGameSystem(User user, GameSystem gameSystem, Integer skillRating,
                           Integer yearsExperience, Integer gamesPerYear, String notes) {
         this.user = user;
         this.gameSystem = gameSystem;
-        this.selfRating = selfRating;
+        this.skillRating = skillRating;
         this.yearsExperience = yearsExperience;
         this.gamesPerYear = gamesPerYear;
         this.notes = notes;
@@ -96,12 +96,12 @@ public class UserGameSystem {
         this.gameSystem = gameSystem;
     }
 
-    public Integer getSelfRating() {
-        return selfRating;
+    public Integer getskillRating() {
+        return skillRating;
     }
 
-    public void setSelfRating(Integer selfRating) {
-        this.selfRating = selfRating;
+    public void setskillRating(Integer skillRating) {
+        this.skillRating = skillRating;
     }
 
     public Integer getYearsExperience() {
@@ -203,7 +203,7 @@ public class UserGameSystem {
                 "id=" + id +
                 ", userId=" + (user != null ? user.getId() : null) +
                 ", gameSystemId=" + (gameSystem != null ? gameSystem.getId() : null) +
-                ", selfRating=" + selfRating +
+                ", skillRating=" + skillRating +
                 ", yearsExperience=" + yearsExperience +
                 ", gamesPerYear=" + gamesPerYear +
                 ", isActive=" + isActive +
