@@ -13,6 +13,7 @@ import java.util.Optional;
 public interface ClubRepository extends JpaRepository<Club, Long> {
 
     // Find all active (non-deleted) clubs
+    @Query("SELECT c FROM Club c WHERE c.deletedTimestamp IS NULL")
     List<Club> findByDeletedTimestampIsNull();
 
     // Find active club by ID
