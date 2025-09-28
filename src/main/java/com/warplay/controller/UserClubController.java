@@ -19,7 +19,6 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/user-clubs")
-@CrossOrigin(origins = "*") // Configure as needed for your frontend
 public class UserClubController {
 
     private static final Logger logger = LoggerFactory.getLogger(UserClubController.class);
