@@ -33,6 +33,11 @@ public class Club {
     @Column(name = "contact_email", length = 100)
     private String contactEmail;
 
+
+    @Size(max = 5000, message = "Description cannot exceed 5000 characters")
+    @Column(name = "description", nullable = false, length = 5000)
+    private String description;
+
     @NotBlank(message = "Country code is required")
     @Size(min = 2, max = 2, message = "Country code must be 2 characters")
     @Column(name = "country_code", nullable = false, length = 2)
@@ -61,12 +66,13 @@ public class Club {
     // Constructors
     public Club() {}
 
-    public Club(String name, String gameSystem, Long ownerId, String contactEmail,
+    public Club(String name, String gameSystem, Long ownerId, String contactEmail, String description,
                 String countryCode, String provinceCode, String city, String postalCode) {
         this.name = name;
         this.gameSystem = gameSystem;
         this.ownerId = ownerId;
         this.contactEmail = contactEmail;
+        this.description = description;
         this.countryCode = countryCode;
         this.provinceCode = provinceCode;
         this.city = city;
@@ -112,6 +118,14 @@ public class Club {
 
     public void setContactEmail(String contactEmail) {
         this.contactEmail = contactEmail;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public String getCountryCode() {
