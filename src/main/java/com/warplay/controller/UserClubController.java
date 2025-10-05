@@ -12,6 +12,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -394,16 +396,13 @@ public class UserClubController {
     }
 
     private String getCurrentUserId() {
-        // Implement based on your authentication mechanism
-        // This is a placeholder - adjust based on your security setup
-
-        // If using Spring Security:
-        // Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        // if (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getName())) {
-        //     return auth.getName();
-        // }
-
-        // For now, return a default value
-        return "1"; // Default to user ID 1 for demo
+        // Get the authenticated user from Spring Security context
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getName())) {
+            return auth.getName(); // This will be the Google user ID
+        }
+        
+        // If no authentication found, throw an exception
+        throw new IllegalStateException("No authenticated user found");
     }
 }
