@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-    <!-- Console appender for Railway deployment -->
-    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+    <!-- Console appender for Railway deployment (JSON format) -->
+    <appender name="CONSOLE_JSON" class="ch.qos.logback.core.ConsoleAppender">
         <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
             <providers>
                 <timestamp/>
@@ -12,6 +12,13 @@
                 <message/>
                 <stackTrace/>
             </providers>
+        </encoder>
+    </appender>
+
+    <!-- Console appender for local development (human-readable format) -->
+    <appender name="CONSOLE_HUMAN" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
         </encoder>
     </appender>
 
@@ -39,7 +46,7 @@
     <!-- Railway profile (production) -->
     <springProfile name="railway,prod">
         <root level="INFO">
-            <appender-ref ref="CONSOLE"/>
+            <appender-ref ref="CONSOLE_JSON"/>
         </root>
 
         <!-- Your application specific logging -->
@@ -64,7 +71,7 @@
     <!-- Development profile -->
     <springProfile name="dev,default">
         <root level="INFO">
-            <appender-ref ref="CONSOLE"/>
+            <appender-ref ref="CONSOLE_HUMAN"/>
             <appender-ref ref="FILE"/>
         </root>
 
@@ -73,9 +80,10 @@
         <logger name="org.springframework.security" level="WARN"/>
     </springProfile>
 
-    <!-- IntelliJ profile - file only -->
-    <springProfile name="intellij">
+    <!-- IntelliJ profile - human-readable console + file -->
+    <springProfile name="dev">
         <root level="DEBUG">
+            <appender-ref ref="CONSOLE_HUMAN"/>
             <appender-ref ref="FILE"/>
         </root>
 
