@@ -351,7 +351,51 @@ public class UserClubController {
         }
     }
 
-    // Check if user is member of club
+    // Check if authenticated user is member of club
+    @GetMapping("/my-membership/{clubId}")
+    public ResponseEntity<?> checkMyMembership(
+            @PathVariable Long clubId,
+            @AuthenticationPrincipal OAuth2User principal) {
+        try {
+            String email = principal.getAttribute("email");
+            if (email == null) {
+                return ResponseEntity
+                        .status(HttpStatus.UNAUTHORIZED)
+                        .body(new ClubMembershipResponse("User email not found in token"));
+            }
+
+            Long userId = userService.getUserIdByEmail(email);
+            logger.debug("Checking membership: user {} - club {}", userId, clubId);
+
+            boolean isMember = userClubService.isUserMemberOfClub(userId, clubId);
+            boolean isAdmin = userClubService.isUserAdminOfClub(userId, clubId);
+            boolean isOwner = userClubService.isUserOwnerOfClub(userId, clubId);
+
+            Map<String, Object> membershipInfo = Map.of(
+                    "isMember", isMember,
+                    "isAdmin", isAdmin,
+                    "isOwner", isOwner,
+                    "role", isOwner ? "OWNER" : (isAdmin ? "ADMIN" : (isMember ? "MEMBER" : "NONE"))
+            );
+
+            loggingService.logUserAction(getCurrentUserId(), "CHECK_MY_MEMBERSHIP",
+                    "Checked membership for user: " + userId + " - club: " + clubId);
+
+            logger.info("Membership check: user {} - club {} = member: {}, admin: {}, owner: {}",
+                    userId, clubId, isMember, isAdmin, isOwner);
+
+            return ResponseEntity.ok(membershipInfo);
+
+        } catch (Exception e) {
+            loggingService.logError("CHECK_MY_MEMBERSHIP", e,
+                    Map.of("clubId", clubId.toString()));
+
+            logger.error("Failed to check membership for club {}", clubId, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    // Check if user is member of club (legacy endpoint)
     @GetMapping("/check-membership/{userId}/{clubId}")
     public ResponseEntity<Map<String, Object>> checkMembership(@PathVariable Long userId, @PathVariable Long clubId) {
         try {
