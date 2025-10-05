@@ -22,7 +22,7 @@
         </encoder>
     </appender>
 
-    <!-- File appender for local development -->
+    <!-- File appender for local development (human-readable format with debug level) -->
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>logs/warplay.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
@@ -30,17 +30,22 @@
             <maxHistory>30</maxHistory>
             <totalSizeCap>300MB</totalSizeCap>
         </rollingPolicy>
-        <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
-            <providers>
-                <timestamp/>
-                <logLevel/>
-                <loggerName/>
-                <mdc/>
-                <arguments/>
-                <message/>
-                <stackTrace/>
-            </providers>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n</pattern>
         </encoder>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>DEBUG</level>
+        </filter>
+    </appender>
+
+    <!-- Console appender for less noisy output (INFO level) -->
+    <appender name="CONSOLE_QUIET" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>
     </appender>
 
     <!-- Railway profile (production) -->
@@ -68,27 +73,19 @@
         <logger name="com.zaxxer.hikari" level="WARN"/>
     </springProfile>
 
-    <!-- Development profile -->
+    <!-- Development profile - optimized for IntelliJ -->
     <springProfile name="dev,default">
-        <root level="INFO">
-            <appender-ref ref="CONSOLE_HUMAN"/>
-            <appender-ref ref="FILE"/>
-        </root>
-
-        <logger name="com.warplay" level="DEBUG"/>
-        <logger name="org.hibernate.SQL" level="INFO"/>
-        <logger name="org.springframework.security" level="WARN"/>
-    </springProfile>
-
-    <!-- IntelliJ profile - human-readable console + file -->
-    <springProfile name="dev">
         <root level="DEBUG">
-            <appender-ref ref="CONSOLE_HUMAN"/>
+            <appender-ref ref="CONSOLE_QUIET"/>
             <appender-ref ref="FILE"/>
         </root>
 
         <logger name="com.warplay" level="DEBUG"/>
         <logger name="org.hibernate.SQL" level="DEBUG"/>
         <logger name="org.springframework.security" level="DEBUG"/>
+        <logger name="org.springframework" level="WARN"/>
+        <logger name="org.hibernate" level="WARN"/>
+        <logger name="com.zaxxer.hikari" level="WARN"/>
     </springProfile>
+
 </configuration>
