@@ -1,17 +1,22 @@
 package com.warplay.controller;
 
+import com.warplay.dto.ClubMembershipResponse;
 import com.warplay.entity.UserClub;
 import com.warplay.entity.UserClub.ClubRole;
+import com.warplay.service.ClubService;
 import com.warplay.service.UserClubService;
 import com.warplay.service.UserClubService.JoinClubRequest;
 import com.warplay.service.UserClubService.ChangeRoleRequest;
 import com.warplay.service.LoggingService;
+import com.warplay.service.UserService;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -29,66 +34,75 @@ public class UserClubController {
     @Autowired
     private LoggingService loggingService;
 
-    // Join a club
+    @Autowired
+    private ClubService clubService;
+
+    @Autowired
+    private UserService userService;
+
+    /**
+     * Join a club using authenticated user from Google OAuth
+     * POST /api/user-clubs/join
+     * Authorization: Bearer <google-token>
+     * Body: { "clubId": 5 }
+     */
     @PostMapping("/join")
-    public ResponseEntity<UserClub> joinClub(@Valid @RequestBody JoinClubRequest request) {
-        long startTime = System.currentTimeMillis();
-        String currentUserId = getCurrentUserId();
-
+    public ResponseEntity<?> joinClub(
+            @RequestBody JoinClubRequest request,
+            @AuthenticationPrincipal OAuth2User principal) {
         try {
-            logger.debug("User {} joining club {}", request.getUserId(), request.getClubId());
+            // Extract user email from Google OAuth token
+            String email = principal.getAttribute("email");
 
-            UserClub membership = userClubService.joinClub(
-                    request.getUserId(),
-                    request.getClubId(),
-                    request.getRole()
-            );
+            if (email == null) {
+                return ResponseEntity
+                        .status(HttpStatus.UNAUTHORIZED)
+                        .body(new ClubMembershipResponse("User email not found in token"));
+            }
 
-            long duration = System.currentTimeMillis() - startTime;
-            loggingService.logPerformance("JOIN_CLUB", duration,
-                    Map.of("userId", request.getUserId().toString(),
-                            "clubId", request.getClubId().toString(),
-                            "role", request.getRole().toString()));
+            // Find or create user by email
+            Long userId = userService.getUserIdByEmail(email);
 
-            logger.info("Successfully joined club: user {} - club {}",
-                    request.getUserId(), request.getClubId());
+            // Join the club
+            UserClub response = userClubService.joinClub(userId, request.getClubId());
+            return ResponseEntity.ok(response);
 
-            return ResponseEntity.status(HttpStatus.CREATED).body(membership);
-
-        } catch (IllegalArgumentException e) {
-            long duration = System.currentTimeMillis() - startTime;
-            loggingService.logError("JOIN_CLUB_VALIDATION", e,
-                    Map.of("userId", request.getUserId().toString(),
-                            "clubId", request.getClubId().toString(),
-                            "currentUserId", currentUserId,
-                            "duration", String.valueOf(duration)));
-
-            logger.warn("Club join failed - validation error: {}", e.getMessage());
-            return ResponseEntity.badRequest().build();
-
-        } catch (IllegalStateException e) {
-            long duration = System.currentTimeMillis() - startTime;
-            loggingService.logError("JOIN_CLUB_STATE", e,
-                    Map.of("userId", request.getUserId().toString(),
-                            "clubId", request.getClubId().toString(),
-                            "duration", String.valueOf(duration)));
-
-            logger.warn("Club join failed - state error: {}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.CONFLICT).build();
-
-        } catch (Exception e) {
-            long duration = System.currentTimeMillis() - startTime;
-            loggingService.logError("JOIN_CLUB", e,
-                    Map.of("userId", request.getUserId().toString(),
-                            "clubId", request.getClubId().toString(),
-                            "currentUserId", currentUserId,
-                            "duration", String.valueOf(duration)));
-
-            logger.error("Failed to join club: user {} - club {}",
-                    request.getUserId(), request.getClubId(), e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        } catch (RuntimeException e) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(new ClubMembershipResponse(e.getMessage()));
         }
     }
+
+    /**
+     * Alternative endpoint: Join club using path variable
+     * POST /api/user-clubs/join/{clubId}
+     */
+    @PostMapping("/join/{clubId}")
+    public ResponseEntity<?> joinClubByPath(
+            @PathVariable Long clubId,
+            @AuthenticationPrincipal OAuth2User principal) {
+        try {
+            String email = principal.getAttribute("email");
+
+            if (email == null) {
+                return ResponseEntity
+                        .status(HttpStatus.UNAUTHORIZED)
+                        .body(new ClubMembershipResponse("User email not found in token"));
+            }
+
+            Long userId = userService.getUserIdByEmail(email);
+            UserClub response = userClubService.joinClub(userId, clubId);
+            return ResponseEntity.ok(response);
+
+        } catch (RuntimeException e) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(new ClubMembershipResponse(e.getMessage()));
+        }
+    }
+
+
 
     // Leave a club
     @PostMapping("/leave/{userId}/{clubId}")

@@ -109,4 +109,12 @@ public class User {
     public void markAsDeleted() {
         this.deletedTimestamp = LocalDateTime.now();
     }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                '}';
+    }
 }

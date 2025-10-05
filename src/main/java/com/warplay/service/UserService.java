@@ -305,6 +305,20 @@ public class UserService {
         }
     }
 
+    @Transactional
+    public Long getUserIdByEmail(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseGet(() -> {
+                    // Auto-create user on first Google login
+                    User newUser = new User();
+                    newUser.setEmail(email);
+                    newUser.setName(email.split("@")[0]); // Use email prefix as username
+                    return userRepository.save(newUser);
+                });
+
+        return user.getId();
+    }
+
     private void validateUser(User user) {
         if (user.getGoogleId() == null || user.getGoogleId().trim().isEmpty()) {
             throw new IllegalArgumentException("Google ID cannot be empty");
