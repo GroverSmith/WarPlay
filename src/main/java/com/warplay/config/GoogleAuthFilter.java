@@ -1,20 +1,30 @@
 package com.warplay.config;
 
+import com.warplay.entity.User;
+import com.warplay.repository.UserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
 @Component
 public class GoogleAuthFilter extends OncePerRequestFilter {
+
+    @Autowired
+    private UserRepository userRepository;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, 
@@ -25,10 +35,33 @@ public class GoogleAuthFilter extends OncePerRequestFilter {
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String googleUserId = authHeader.substring(7); // Remove "Bearer " prefix
             
-            // Create authentication token with Google user ID
+            // Try to find user by Google ID to get their email
+            Optional<User> userOpt = userRepository.findByGoogleId(googleUserId);
+            
+            Map<String, Object> attributes = new HashMap<>();
+            attributes.put("sub", googleUserId);
+            
+            if (userOpt.isPresent()) {
+                User user = userOpt.get();
+                attributes.put("email", user.getEmail());
+                attributes.put("name", user.getName());
+            } else {
+                // Fallback if user not found in database
+                attributes.put("email", "unknown@google.com");
+                attributes.put("name", "Google User");
+            }
+            
+            // Create OAuth2User
+            DefaultOAuth2User oauth2User = new DefaultOAuth2User(
+                Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER")),
+                attributes,
+                "sub"
+            );
+            
+            // Create authentication token with OAuth2User
             UsernamePasswordAuthenticationToken authToken = 
                 new UsernamePasswordAuthenticationToken(
-                    googleUserId, 
+                    oauth2User, 
                     null, 
                     Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"))
                 );
