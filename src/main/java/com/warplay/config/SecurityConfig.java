@@ -48,14 +48,14 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         
-        // Allow specific origins
-        configuration.setAllowedOriginPatterns(Arrays.asList(
-            "https://warplay.org",
-            "https://*.warplay.org",
+        // Allow specific origins (cannot use "*" with allowCredentials=true)
+        configuration.setAllowedOrigins(Arrays.asList(
             "http://localhost:3000",
             "http://localhost:8080",
             "http://127.0.0.1:3000",
-            "http://127.0.0.1:8080"
+            "http://127.0.0.1:8080",
+            "https://warplay.org",
+            "https://www.warplay.org"
         ));
         
         // Allow all HTTP methods
@@ -67,22 +67,14 @@ public class SecurityConfig {
         // Allow credentials (important for authentication)
         configuration.setAllowCredentials(true);
         
-        // Expose headers that might be needed
-        configuration.setExposedHeaders(Arrays.asList(
-            "Authorization", 
-            "Content-Type", 
-            "X-Requested-With",
-            "Accept",
-            "Origin",
-            "Access-Control-Request-Method",
-            "Access-Control-Request-Headers"
-        ));
+        // Expose all headers that might be needed
+        configuration.setExposedHeaders(Arrays.asList("*"));
         
         // Cache preflight response for 1 hour
         configuration.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/api/**", configuration);
+        source.registerCorsConfiguration("/**", configuration);
         
         return source;
     }
