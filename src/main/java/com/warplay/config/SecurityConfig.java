@@ -27,6 +27,7 @@ public class SecurityConfig {
                 // Public endpoints - no authentication required
                 .requestMatchers("/api/clubs", "/api/clubs/**").permitAll()
                 .requestMatchers("/api/health").permitAll()
+                .requestMatchers("/api/test/**").permitAll()
                 
                 // Authentication endpoints - no authentication required
                 .requestMatchers("/api/auth/**").permitAll()
