@@ -36,6 +36,10 @@ public class UserClubService {
     @Autowired
     private LoggingService loggingService;
 
+    public UserClub joinClub(Long userId, Long clubId) {
+        return joinClub(userId, clubId, ClubRole.MEMBER);
+    }
+
     public UserClub joinClub(Long userId, Long clubId, ClubRole role) {
         long startTime = System.currentTimeMillis();
 
