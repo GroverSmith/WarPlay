@@ -51,6 +51,38 @@ public class ClubService {
         }
     }
 
+    public List<ClubWithMemberCount> getAllActiveClubsWithMemberCount() {
+        long startTime = System.currentTimeMillis();
+
+        try {
+            logger.debug("Fetching all active clubs with member count from database");
+
+            List<Club> clubs = clubRepository.findByDeletedTimestampIsNull();
+            
+            List<ClubWithMemberCount> clubsWithMemberCount = clubs.stream()
+                .map(club -> {
+                    Long memberCount = userClubService.getActiveMemberCount(club.getId());
+                    return new ClubWithMemberCount(club, memberCount);
+                })
+                .collect(Collectors.toList());
+
+            long duration = System.currentTimeMillis() - startTime;
+            loggingService.logDatabaseOperation("clubs", "SELECT_ALL_ACTIVE_WITH_MEMBER_COUNT", true,
+                "Retrieved " + clubsWithMemberCount.size() + " active clubs with member counts");
+
+            logger.info("Successfully retrieved {} active clubs with member counts from database", clubsWithMemberCount.size());
+            return clubsWithMemberCount;
+
+        } catch (DataAccessException e) {
+            long duration = System.currentTimeMillis() - startTime;
+            loggingService.logDatabaseOperation("clubs", "SELECT_ALL_ACTIVE_WITH_MEMBER_COUNT", false,
+                "Database error: " + e.getMessage());
+
+            logger.error("Failed to retrieve active clubs with member count from database", e);
+            throw new RuntimeException("Failed to retrieve clubs with member count", e);
+        }
+    }
+
     public Optional<Club> getActiveClubById(Long id) {
         long startTime = System.currentTimeMillis();
 
@@ -74,6 +106,35 @@ public class ClubService {
             long duration = System.currentTimeMillis() - startTime;
             logger.error("Failed to retrieve club by ID: {}", id, e);
             throw new RuntimeException("Failed to retrieve club", e);
+        }
+    }
+
+    public Optional<ClubWithMemberCount> getActiveClubByIdWithMemberCount(Long id) {
+        long startTime = System.currentTimeMillis();
+
+        try {
+            logger.debug("Fetching active club by ID with member count: {}", id);
+
+            Optional<Club> club = clubRepository.findByIdAndDeletedTimestampIsNull(id);
+
+            if (club.isPresent()) {
+                Long memberCount = userClubService.getActiveMemberCount(id);
+                ClubWithMemberCount clubWithMemberCount = new ClubWithMemberCount(club.get(), memberCount);
+                
+                long duration = System.currentTimeMillis() - startTime;
+                logger.info("Successfully retrieved club with member count: {} (ID: {}, Members: {})",
+                        club.get().getName(), id, memberCount);
+                
+                return Optional.of(clubWithMemberCount);
+            } else {
+                logger.warn("Active club not found: {}", id);
+                return Optional.empty();
+            }
+
+        } catch (DataAccessException e) {
+            long duration = System.currentTimeMillis() - startTime;
+            logger.error("Failed to retrieve club by ID with member count: {}", id, e);
+            throw new RuntimeException("Failed to retrieve club with member count", e);
         }
     }
 

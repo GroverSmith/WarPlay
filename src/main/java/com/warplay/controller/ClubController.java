@@ -28,19 +28,19 @@ public class ClubController {
     private LoggingService loggingService;
 
     @GetMapping
-    public ResponseEntity<List<Club>> getAllActiveClubs() {
+    public ResponseEntity<List<ClubWithMemberCount>> getAllActiveClubs() {
         long startTime = System.currentTimeMillis();
 
         try {
-            logger.debug("Fetching all active clubs");
+            logger.debug("Fetching all active clubs with member counts");
 
-            List<Club> clubs = clubService.getAllActiveClubs();
+            List<ClubWithMemberCount> clubs = clubService.getAllActiveClubsWithMemberCount();
 
             long duration = System.currentTimeMillis() - startTime;
             loggingService.logPerformance("GET_ALL_CLUBS", duration,
                     Map.of("clubCount", String.valueOf(clubs.size())));
 
-            logger.info("Successfully retrieved {} active clubs", clubs.size());
+            logger.info("Successfully retrieved {} active clubs with member counts", clubs.size());
             return ResponseEntity.ok(clubs);
 
         } catch (Exception e) {
@@ -48,19 +48,19 @@ public class ClubController {
             loggingService.logError("GET_ALL_CLUBS", e,
                     Map.of("duration", String.valueOf(duration)));
 
-            logger.error("Failed to retrieve clubs", e);
+            logger.error("Failed to retrieve clubs with member counts", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Club> getClub(@PathVariable Long id) {
+    public ResponseEntity<ClubWithMemberCount> getClub(@PathVariable Long id) {
         long startTime = System.currentTimeMillis();
 
         try {
-            logger.debug("Fetching club with ID: {}", id);
+            logger.debug("Fetching club with ID and member count: {}", id);
 
-            Optional<Club> club = clubService.getActiveClubById(id);
+            Optional<ClubWithMemberCount> club = clubService.getActiveClubByIdWithMemberCount(id);
 
             if (club.isPresent()) {
                 long duration = System.currentTimeMillis() - startTime;
@@ -69,7 +69,7 @@ public class ClubController {
                 loggingService.logPerformance("GET_CLUB", duration,
                         Map.of("clubId", id.toString()));
 
-                logger.info("Successfully retrieved club: {}", id);
+                logger.info("Successfully retrieved club with member count: {} (Members: {})", id, club.get().getMemberCount());
                 return ResponseEntity.ok(club.get());
             } else {
                 logger.warn("Active club not found: {}", id);
