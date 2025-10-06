@@ -1,7 +1,9 @@
 package com.warplay.service;
 
+import com.warplay.dto.ClubWithMemberCount;
 import com.warplay.entity.Club;
 import com.warplay.repository.ClubRepository;
+import com.warplay.repository.UserClubRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -21,6 +24,9 @@ public class ClubService {
 
     @Autowired
     private ClubRepository clubRepository;
+
+    @Autowired
+    private UserClubRepository userClubRepository;
 
 
     @Autowired
@@ -61,7 +67,7 @@ public class ClubService {
             
             List<ClubWithMemberCount> clubsWithMemberCount = clubs.stream()
                 .map(club -> {
-                    Long memberCount = userClubService.getActiveMemberCount(club.getId());
+                    Long memberCount = userClubRepository.countActiveMembersByClubId(club.getId());
                     return new ClubWithMemberCount(club, memberCount);
                 })
                 .collect(Collectors.toList());
@@ -118,7 +124,7 @@ public class ClubService {
             Optional<Club> club = clubRepository.findByIdAndDeletedTimestampIsNull(id);
 
             if (club.isPresent()) {
-                Long memberCount = userClubService.getActiveMemberCount(id);
+                Long memberCount = userClubRepository.countActiveMembersByClubId(id);
                 ClubWithMemberCount clubWithMemberCount = new ClubWithMemberCount(club.get(), memberCount);
                 
                 long duration = System.currentTimeMillis() - startTime;
