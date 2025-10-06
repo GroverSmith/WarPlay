@@ -80,7 +80,7 @@ public class ClubWithMemberCount {
     }
 
     public String getDescription() {
-        return description;
+        return description != null ? description : "A gaming club for war game enthusiasts. Join us for exciting campaigns and battles!";
     }
 
     public void setDescription(String description) {

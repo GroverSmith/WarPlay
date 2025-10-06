@@ -35,7 +35,7 @@ public class Club {
 
 
     @Size(max = 5000, message = "Description cannot exceed 5000 characters")
-    @Column(name = "description", nullable = false, length = 5000)
+    @Column(name = "description", nullable = true, length = 5000)
     private String description;
 
     @NotBlank(message = "Country code is required")
