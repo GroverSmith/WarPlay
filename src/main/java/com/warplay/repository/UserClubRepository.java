@@ -84,9 +84,7 @@ public interface UserClubRepository extends JpaRepository<UserClub, Long> {
     boolean isUserOwnerOfClub(@Param("userId") Long userId, @Param("clubId") Long clubId);
 
     // Count active members in club
-    @Query("SELECT COUNT(uc) FROM UserClub uc " +
-            "WHERE uc.club.id = :clubId " +
-            "AND uc.isActive = true")
+    @Query(value = "SELECT COUNT(*) FROM user_clubs WHERE club_id = :clubId AND is_active = true", nativeQuery = true)
     Long countActiveMembersByClubId(@Param("clubId") Long clubId);
 
     // Count active members by role in club
