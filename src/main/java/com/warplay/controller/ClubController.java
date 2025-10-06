@@ -1,5 +1,6 @@
 package com.warplay.controller;
 
+import com.warplay.dto.ClubWithMemberCount;
 import com.warplay.entity.Club;
 import com.warplay.service.ClubService;
 import com.warplay.service.LoggingService;
