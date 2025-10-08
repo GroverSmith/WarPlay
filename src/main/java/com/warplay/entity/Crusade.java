@@ -43,6 +43,27 @@ public class Crusade {
     @Column(name = "description", length = 5000)
     private String description;
 
+    @Column(name = "introduction", columnDefinition = "TEXT")
+    private String introduction;
+
+    @Column(name = "rules_block_1", columnDefinition = "TEXT")
+    private String rulesBlock1;
+
+    @Column(name = "rules_block_2", columnDefinition = "TEXT")
+    private String rulesBlock2;
+
+    @Column(name = "rules_block_3", columnDefinition = "TEXT")
+    private String rulesBlock3;
+
+    @Column(name = "narrative_block_1", columnDefinition = "TEXT")
+    private String narrativeBlock1;
+
+    @Column(name = "narrative_block_2", columnDefinition = "TEXT")
+    private String narrativeBlock2;
+
+    @Column(name = "narrative_block_3", columnDefinition = "TEXT")
+    private String narrativeBlock3;
+
     @CreationTimestamp
     @Column(name = "created_timestamp", nullable = false, updatable = false)
     private LocalDateTime createdTimestamp;
@@ -62,6 +83,26 @@ public class Crusade {
         this.startDate = startDate;
         this.endDate = endDate;
         this.description = description;
+    }
+
+    public Crusade(String name, Long clubId, String type, String state, 
+                   LocalDate startDate, LocalDate endDate, String description,
+                   String introduction, String rulesBlock1, String rulesBlock2, String rulesBlock3,
+                   String narrativeBlock1, String narrativeBlock2, String narrativeBlock3) {
+        this.name = name;
+        this.clubId = clubId;
+        this.type = type;
+        this.state = state;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.description = description;
+        this.introduction = introduction;
+        this.rulesBlock1 = rulesBlock1;
+        this.rulesBlock2 = rulesBlock2;
+        this.rulesBlock3 = rulesBlock3;
+        this.narrativeBlock1 = narrativeBlock1;
+        this.narrativeBlock2 = narrativeBlock2;
+        this.narrativeBlock3 = narrativeBlock3;
     }
 
     // Getters and Setters
@@ -127,6 +168,62 @@ public class Crusade {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getIntroduction() {
+        return introduction;
+    }
+
+    public void setIntroduction(String introduction) {
+        this.introduction = introduction;
+    }
+
+    public String getRulesBlock1() {
+        return rulesBlock1;
+    }
+
+    public void setRulesBlock1(String rulesBlock1) {
+        this.rulesBlock1 = rulesBlock1;
+    }
+
+    public String getRulesBlock2() {
+        return rulesBlock2;
+    }
+
+    public void setRulesBlock2(String rulesBlock2) {
+        this.rulesBlock2 = rulesBlock2;
+    }
+
+    public String getRulesBlock3() {
+        return rulesBlock3;
+    }
+
+    public void setRulesBlock3(String rulesBlock3) {
+        this.rulesBlock3 = rulesBlock3;
+    }
+
+    public String getNarrativeBlock1() {
+        return narrativeBlock1;
+    }
+
+    public void setNarrativeBlock1(String narrativeBlock1) {
+        this.narrativeBlock1 = narrativeBlock1;
+    }
+
+    public String getNarrativeBlock2() {
+        return narrativeBlock2;
+    }
+
+    public void setNarrativeBlock2(String narrativeBlock2) {
+        this.narrativeBlock2 = narrativeBlock2;
+    }
+
+    public String getNarrativeBlock3() {
+        return narrativeBlock3;
+    }
+
+    public void setNarrativeBlock3(String narrativeBlock3) {
+        this.narrativeBlock3 = narrativeBlock3;
     }
 
     public LocalDateTime getCreatedTimestamp() {

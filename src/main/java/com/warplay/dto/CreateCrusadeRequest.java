@@ -29,11 +29,27 @@ public class CreateCrusadeRequest {
     @Size(max = 5000, message = "Description cannot exceed 5000 characters")
     private String description;
 
+    private String introduction;
+
+    private String rulesBlock1;
+
+    private String rulesBlock2;
+
+    private String rulesBlock3;
+
+    private String narrativeBlock1;
+
+    private String narrativeBlock2;
+
+    private String narrativeBlock3;
+
     // Constructors
     public CreateCrusadeRequest() {}
 
     public CreateCrusadeRequest(String name, Long clubId, String type, String state,
-                                LocalDate startDate, LocalDate endDate, String description) {
+                                LocalDate startDate, LocalDate endDate, String description,
+                                String introduction, String rulesBlock1, String rulesBlock2, String rulesBlock3,
+                                String narrativeBlock1, String narrativeBlock2, String narrativeBlock3) {
         this.name = name;
         this.clubId = clubId;
         this.type = type;
@@ -41,6 +57,13 @@ public class CreateCrusadeRequest {
         this.startDate = startDate;
         this.endDate = endDate;
         this.description = description;
+        this.introduction = introduction;
+        this.rulesBlock1 = rulesBlock1;
+        this.rulesBlock2 = rulesBlock2;
+        this.rulesBlock3 = rulesBlock3;
+        this.narrativeBlock1 = narrativeBlock1;
+        this.narrativeBlock2 = narrativeBlock2;
+        this.narrativeBlock3 = narrativeBlock3;
     }
 
     // Getters and Setters
@@ -98,5 +121,61 @@ public class CreateCrusadeRequest {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getIntroduction() {
+        return introduction;
+    }
+
+    public void setIntroduction(String introduction) {
+        this.introduction = introduction;
+    }
+
+    public String getRulesBlock1() {
+        return rulesBlock1;
+    }
+
+    public void setRulesBlock1(String rulesBlock1) {
+        this.rulesBlock1 = rulesBlock1;
+    }
+
+    public String getRulesBlock2() {
+        return rulesBlock2;
+    }
+
+    public void setRulesBlock2(String rulesBlock2) {
+        this.rulesBlock2 = rulesBlock2;
+    }
+
+    public String getRulesBlock3() {
+        return rulesBlock3;
+    }
+
+    public void setRulesBlock3(String rulesBlock3) {
+        this.rulesBlock3 = rulesBlock3;
+    }
+
+    public String getNarrativeBlock1() {
+        return narrativeBlock1;
+    }
+
+    public void setNarrativeBlock1(String narrativeBlock1) {
+        this.narrativeBlock1 = narrativeBlock1;
+    }
+
+    public String getNarrativeBlock2() {
+        return narrativeBlock2;
+    }
+
+    public void setNarrativeBlock2(String narrativeBlock2) {
+        this.narrativeBlock2 = narrativeBlock2;
+    }
+
+    public String getNarrativeBlock3() {
+        return narrativeBlock3;
+    }
+
+    public void setNarrativeBlock3(String narrativeBlock3) {
+        this.narrativeBlock3 = narrativeBlock3;
     }
 }

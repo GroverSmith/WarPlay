@@ -170,7 +170,14 @@ public class CrusadeService {
                     request.getState(),
                     request.getStartDate(),
                     request.getEndDate(),
-                    request.getDescription()
+                    request.getDescription(),
+                    request.getIntroduction(),
+                    request.getRulesBlock1(),
+                    request.getRulesBlock2(),
+                    request.getRulesBlock3(),
+                    request.getNarrativeBlock1(),
+                    request.getNarrativeBlock2(),
+                    request.getNarrativeBlock3()
             );
 
             Crusade savedCrusade = crusadeRepository.save(crusade);
@@ -232,6 +239,13 @@ public class CrusadeService {
                 crusadeToUpdate.setStartDate(request.getStartDate());
                 crusadeToUpdate.setEndDate(request.getEndDate());
                 crusadeToUpdate.setDescription(request.getDescription());
+                crusadeToUpdate.setIntroduction(request.getIntroduction());
+                crusadeToUpdate.setRulesBlock1(request.getRulesBlock1());
+                crusadeToUpdate.setRulesBlock2(request.getRulesBlock2());
+                crusadeToUpdate.setRulesBlock3(request.getRulesBlock3());
+                crusadeToUpdate.setNarrativeBlock1(request.getNarrativeBlock1());
+                crusadeToUpdate.setNarrativeBlock2(request.getNarrativeBlock2());
+                crusadeToUpdate.setNarrativeBlock3(request.getNarrativeBlock3());
 
                 Crusade updatedCrusade = crusadeRepository.save(crusadeToUpdate);
 

@@ -14,6 +14,13 @@ public class CrusadeResponse {
     private LocalDate startDate;
     private LocalDate endDate;
     private String description;
+    private String introduction;
+    private String rulesBlock1;
+    private String rulesBlock2;
+    private String rulesBlock3;
+    private String narrativeBlock1;
+    private String narrativeBlock2;
+    private String narrativeBlock3;
     private LocalDateTime createdTimestamp;
 
     // Constructors
@@ -28,6 +35,13 @@ public class CrusadeResponse {
         this.startDate = crusade.getStartDate();
         this.endDate = crusade.getEndDate();
         this.description = crusade.getDescription();
+        this.introduction = crusade.getIntroduction();
+        this.rulesBlock1 = crusade.getRulesBlock1();
+        this.rulesBlock2 = crusade.getRulesBlock2();
+        this.rulesBlock3 = crusade.getRulesBlock3();
+        this.narrativeBlock1 = crusade.getNarrativeBlock1();
+        this.narrativeBlock2 = crusade.getNarrativeBlock2();
+        this.narrativeBlock3 = crusade.getNarrativeBlock3();
         this.createdTimestamp = crusade.getCreatedTimestamp();
     }
 
@@ -94,6 +108,62 @@ public class CrusadeResponse {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getIntroduction() {
+        return introduction;
+    }
+
+    public void setIntroduction(String introduction) {
+        this.introduction = introduction;
+    }
+
+    public String getRulesBlock1() {
+        return rulesBlock1;
+    }
+
+    public void setRulesBlock1(String rulesBlock1) {
+        this.rulesBlock1 = rulesBlock1;
+    }
+
+    public String getRulesBlock2() {
+        return rulesBlock2;
+    }
+
+    public void setRulesBlock2(String rulesBlock2) {
+        this.rulesBlock2 = rulesBlock2;
+    }
+
+    public String getRulesBlock3() {
+        return rulesBlock3;
+    }
+
+    public void setRulesBlock3(String rulesBlock3) {
+        this.rulesBlock3 = rulesBlock3;
+    }
+
+    public String getNarrativeBlock1() {
+        return narrativeBlock1;
+    }
+
+    public void setNarrativeBlock1(String narrativeBlock1) {
+        this.narrativeBlock1 = narrativeBlock1;
+    }
+
+    public String getNarrativeBlock2() {
+        return narrativeBlock2;
+    }
+
+    public void setNarrativeBlock2(String narrativeBlock2) {
+        this.narrativeBlock2 = narrativeBlock2;
+    }
+
+    public String getNarrativeBlock3() {
+        return narrativeBlock3;
+    }
+
+    public void setNarrativeBlock3(String narrativeBlock3) {
+        this.narrativeBlock3 = narrativeBlock3;
     }
 
     public LocalDateTime getCreatedTimestamp() {
