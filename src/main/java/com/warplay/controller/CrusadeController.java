@@ -3,6 +3,7 @@ package com.warplay.controller;
 import com.warplay.dto.CreateCrusadeRequest;
 import com.warplay.dto.CrusadeResponse;
 import com.warplay.dto.UpdateCrusadeRequest;
+import com.warplay.service.CrusadeAuthorizationService;
 import com.warplay.service.CrusadeService;
 import com.warplay.service.LoggingService;
 import jakarta.validation.Valid;
@@ -11,6 +12,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -28,6 +31,9 @@ public class CrusadeController {
 
     @Autowired
     private LoggingService loggingService;
+
+    @Autowired
+    private CrusadeAuthorizationService authorizationService;
 
     @GetMapping
     public ResponseEntity<List<CrusadeResponse>> getAllActiveCrusades() {
@@ -145,64 +151,133 @@ public class CrusadeController {
     }
 
     @PostMapping
-    public ResponseEntity<CrusadeResponse> createCrusade(@Valid @RequestBody CreateCrusadeRequest request) {
+    public ResponseEntity<?> createCrusade(
+            @Valid @RequestBody CreateCrusadeRequest request,
+            @AuthenticationPrincipal OAuth2User principal) {
         long startTime = System.currentTimeMillis();
-        String userId = getCurrentUserId();
 
         try {
-            logger.debug("Creating new crusade: {}", request.getName());
+            // Check authentication
+            if (principal == null) {
+                logger.warn("Unauthenticated attempt to create crusade");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(Map.of("message", "Authentication required"));
+            }
 
+            String googleId = principal.getAttribute("sub");
+            String userEmail = principal.getAttribute("email");
+            
+            if (googleId == null) {
+                logger.warn("Google ID (sub) not found in authentication token");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(Map.of("message", "User ID not found in token"));
+            }
+
+            logger.debug("User {} (Google ID: {}) attempting to create crusade: {}", 
+                userEmail, googleId, request.getName());
+
+            // Check authorization - only club admins/owners can create crusades
+            if (!authorizationService.canCreateCrusade(googleId, request.getClubId())) {
+                logger.warn("User {} (Google ID: {}) does not have permission to create crusades in club {}", 
+                    userEmail, googleId, request.getClubId());
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body(Map.of("message", "You do not have permission to create crusades in this club. Only club administrators can create crusades."));
+            }
+
+            // Create the crusade
             CrusadeResponse savedCrusade = crusadeService.createCrusade(request);
 
             long duration = System.currentTimeMillis() - startTime;
-            loggingService.logUserAction(userId, "CREATE_CRUSADE",
-                    "Created crusade: " + savedCrusade.getName());
+            loggingService.logUserAction(userEmail != null ? userEmail : googleId, "CREATE_CRUSADE",
+                    "Created crusade: " + savedCrusade.getName() + " in club: " + request.getClubId());
             loggingService.logPerformance("CREATE_CRUSADE", duration,
-                    Map.of("crusadeId", savedCrusade.getId().toString()));
+                    Map.of("crusadeId", savedCrusade.getId().toString(),
+                            "clubId", request.getClubId().toString(),
+                            "googleId", googleId));
 
-            logger.info("Successfully created crusade: {} (ID: {})",
-                    savedCrusade.getName(), savedCrusade.getId());
+            logger.info("User {} (Google ID: {}) successfully created crusade: {} (ID: {}) in club: {}",
+                    userEmail, googleId, savedCrusade.getName(), savedCrusade.getId(), request.getClubId());
 
             return ResponseEntity.status(HttpStatus.CREATED).body(savedCrusade);
 
         } catch (IllegalArgumentException e) {
             long duration = System.currentTimeMillis() - startTime;
             loggingService.logError("CREATE_CRUSADE_VALIDATION", e,
-                    Map.of("userId", userId, "crusadeName", request.getName(),
+                    Map.of("crusadeName", request.getName(),
+                            "clubId", request.getClubId().toString(),
                             "duration", String.valueOf(duration)));
 
             logger.warn("Crusade creation failed - validation error: {}", e.getMessage());
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest()
+                    .body(Map.of("message", e.getMessage()));
 
         } catch (Exception e) {
             long duration = System.currentTimeMillis() - startTime;
             loggingService.logError("CREATE_CRUSADE", e,
-                    Map.of("userId", userId, "crusadeName", request.getName(),
+                    Map.of("crusadeName", request.getName(),
+                            "clubId", request.getClubId().toString(),
                             "duration", String.valueOf(duration)));
 
             logger.error("Failed to create crusade: {}", request.getName(), e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("message", "Failed to create crusade"));
         }
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<CrusadeResponse> updateCrusade(@PathVariable Long id, @Valid @RequestBody UpdateCrusadeRequest request) {
+    public ResponseEntity<?> updateCrusade(
+            @PathVariable Long id,
+            @Valid @RequestBody UpdateCrusadeRequest request,
+            @AuthenticationPrincipal OAuth2User principal) {
         long startTime = System.currentTimeMillis();
-        String userId = getCurrentUserId();
 
         try {
-            logger.debug("Updating crusade: {}", id);
+            // Check authentication
+            if (principal == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(Map.of("message", "Authentication required"));
+            }
 
+            String googleId = principal.getAttribute("sub");
+            String userEmail = principal.getAttribute("email");
+            
+            if (googleId == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(Map.of("message", "User ID not found in token"));
+            }
+
+            logger.debug("User {} (Google ID: {}) attempting to update crusade: {}", 
+                userEmail, googleId, id);
+
+            // Get the existing crusade to check club membership
+            Optional<CrusadeResponse> existingCrusade = crusadeService.getActiveCrusadeById(id);
+            if (existingCrusade.isEmpty()) {
+                logger.warn("Active crusade not found for update: {}", id);
+                return ResponseEntity.notFound().build();
+            }
+
+            Long clubId = existingCrusade.get().getClubId();
+
+            // Check authorization
+            if (!authorizationService.canModifyCrusade(googleId, clubId)) {
+                logger.warn("User {} (Google ID: {}) does not have permission to update crusade {} in club {}", 
+                    userEmail, googleId, id, clubId);
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body(Map.of("message", "You do not have permission to modify this crusade"));
+            }
+
+            // Update the crusade
             Optional<CrusadeResponse> updatedCrusade = crusadeService.updateCrusade(id, request);
 
             if (updatedCrusade.isPresent()) {
                 long duration = System.currentTimeMillis() - startTime;
-                loggingService.logUserAction(userId, "UPDATE_CRUSADE",
+                loggingService.logUserAction(userEmail != null ? userEmail : googleId, "UPDATE_CRUSADE",
                         "Updated crusade: " + updatedCrusade.get().getName());
                 loggingService.logPerformance("UPDATE_CRUSADE", duration,
-                        Map.of("crusadeId", id.toString()));
+                        Map.of("crusadeId", id.toString(), "googleId", googleId));
 
-                logger.info("Successfully updated crusade: {}", id);
+                logger.info("User {} (Google ID: {}) successfully updated crusade: {}", 
+                    userEmail, googleId, id);
                 return ResponseEntity.ok(updatedCrusade.get());
             } else {
                 logger.warn("Active crusade not found for update: {}", id);
@@ -212,41 +287,78 @@ public class CrusadeController {
         } catch (IllegalArgumentException e) {
             long duration = System.currentTimeMillis() - startTime;
             loggingService.logError("UPDATE_CRUSADE_VALIDATION", e,
-                    Map.of("crusadeId", id.toString(), "userId", userId,
+                    Map.of("crusadeId", id.toString(),
                             "duration", String.valueOf(duration)));
 
             logger.warn("Crusade update failed - validation error: {}", e.getMessage());
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest()
+                    .body(Map.of("message", e.getMessage()));
 
         } catch (Exception e) {
             long duration = System.currentTimeMillis() - startTime;
             loggingService.logError("UPDATE_CRUSADE", e,
-                    Map.of("crusadeId", id.toString(), "userId", userId,
+                    Map.of("crusadeId", id.toString(),
                             "duration", String.valueOf(duration)));
 
             logger.error("Failed to update crusade: {}", id, e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("message", "Failed to update crusade"));
         }
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteCrusade(@PathVariable Long id) {
+    public ResponseEntity<?> deleteCrusade(
+            @PathVariable Long id,
+            @AuthenticationPrincipal OAuth2User principal) {
         long startTime = System.currentTimeMillis();
-        String userId = getCurrentUserId();
 
         try {
-            logger.debug("Soft deleting crusade: {}", id);
+            // Check authentication
+            if (principal == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(Map.of("message", "Authentication required"));
+            }
 
+            String googleId = principal.getAttribute("sub");
+            String userEmail = principal.getAttribute("email");
+            
+            if (googleId == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(Map.of("message", "User ID not found in token"));
+            }
+
+            logger.debug("User {} (Google ID: {}) attempting to delete crusade: {}", 
+                userEmail, googleId, id);
+
+            // Get the existing crusade to check club membership
+            Optional<CrusadeResponse> existingCrusade = crusadeService.getActiveCrusadeById(id);
+            if (existingCrusade.isEmpty()) {
+                logger.warn("Active crusade not found for deletion: {}", id);
+                return ResponseEntity.notFound().build();
+            }
+
+            Long clubId = existingCrusade.get().getClubId();
+
+            // Check authorization
+            if (!authorizationService.canModifyCrusade(googleId, clubId)) {
+                logger.warn("User {} (Google ID: {}) does not have permission to delete crusade {} in club {}", 
+                    userEmail, googleId, id, clubId);
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body(Map.of("message", "You do not have permission to delete this crusade"));
+            }
+
+            // Delete the crusade
             boolean deleted = crusadeService.softDeleteCrusade(id);
 
             if (deleted) {
                 long duration = System.currentTimeMillis() - startTime;
-                loggingService.logUserAction(userId, "DELETE_CRUSADE",
+                loggingService.logUserAction(userEmail != null ? userEmail : googleId, "DELETE_CRUSADE",
                         "Deleted crusade ID: " + id);
                 loggingService.logPerformance("DELETE_CRUSADE", duration,
-                        Map.of("crusadeId", id.toString()));
+                        Map.of("crusadeId", id.toString(), "googleId", googleId));
 
-                logger.info("Successfully soft deleted crusade: {}", id);
+                logger.info("User {} (Google ID: {}) successfully soft deleted crusade: {}", 
+                    userEmail, googleId, id);
                 return ResponseEntity.noContent().build();
             } else {
                 logger.warn("Active crusade not found for deletion: {}", id);
@@ -256,11 +368,12 @@ public class CrusadeController {
         } catch (Exception e) {
             long duration = System.currentTimeMillis() - startTime;
             loggingService.logError("DELETE_CRUSADE", e,
-                    Map.of("crusadeId", id.toString(), "userId", userId,
+                    Map.of("crusadeId", id.toString(),
                             "duration", String.valueOf(duration)));
 
             logger.error("Failed to delete crusade: {}", id, e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("message", "Failed to delete crusade"));
         }
     }
 
@@ -286,9 +399,4 @@ public class CrusadeController {
         }
     }
 
-    private String getCurrentUserId() {
-        // Implement based on your authentication mechanism
-        // This is a placeholder - adjust based on your security setup
-        return "system";
-    }
 }

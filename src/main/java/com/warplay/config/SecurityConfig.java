@@ -32,9 +32,15 @@ public class SecurityConfig {
             .authorizeHttpRequests(authz -> authz
                 // Public endpoints - no authentication required
                 .requestMatchers("/api/clubs", "/api/clubs/**").permitAll()
-                .requestMatchers("/api/crusades", "/api/crusades/**").permitAll()
                 .requestMatchers("/api/health").permitAll()
                 .requestMatchers("/api/test/**").permitAll()
+                
+                // Public read-only crusade endpoints
+                .requestMatchers("/api/crusades").permitAll()
+                .requestMatchers("/api/crusades/{id}").permitAll()
+                .requestMatchers("/api/crusades/club/{clubId}").permitAll()
+                .requestMatchers("/api/crusades/club/{clubId}/active").permitAll()
+                .requestMatchers("/api/crusades/search").permitAll()
                 
                 // Authentication endpoints - no authentication required
                 .requestMatchers("/api/auth/**").permitAll()
