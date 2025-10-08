@@ -413,26 +413,32 @@ public class CrusadeController {
 
     /**
      * Get user identifier for logging purposes
-     * Returns email if available, name if not, or "anonymous" if not authenticated
+     * Preference: email > name > Google ID > "anonymous"
+     * 
+     * @param principal OAuth2User principal (can be null for public endpoints)
+     * @return User identifier string for logging
      */
     private String getUserIdentifier(OAuth2User principal) {
         if (principal == null) {
             return "anonymous";
         }
         
+        // Prefer email as it's unique and readable
         String email = principal.getAttribute("email");
-        if (email != null) {
+        if (email != null && !email.isEmpty()) {
             return email;
         }
         
+        // Next prefer name for readability
         String name = principal.getAttribute("name");
-        if (name != null) {
+        if (name != null && !name.isEmpty()) {
             return name;
         }
         
+        // Fallback to Google ID if name not available
         String googleId = principal.getAttribute("sub");
-        if (googleId != null) {
-            return "google:" + googleId;
+        if (googleId != null && !googleId.isEmpty()) {
+            return "googleId:" + googleId;
         }
         
         return "anonymous";
