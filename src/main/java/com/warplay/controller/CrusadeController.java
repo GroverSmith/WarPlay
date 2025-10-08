@@ -413,7 +413,7 @@ public class CrusadeController {
 
     /**
      * Get user identifier for logging purposes
-     * Returns email if available, Google ID if not, or "anonymous" if not authenticated
+     * Returns email if available, name if not, or "anonymous" if not authenticated
      */
     private String getUserIdentifier(OAuth2User principal) {
         if (principal == null) {
@@ -423,6 +423,11 @@ public class CrusadeController {
         String email = principal.getAttribute("email");
         if (email != null) {
             return email;
+        }
+        
+        String name = principal.getAttribute("name");
+        if (name != null) {
+            return name;
         }
         
         String googleId = principal.getAttribute("sub");
