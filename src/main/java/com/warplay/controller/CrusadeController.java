@@ -62,7 +62,9 @@ public class CrusadeController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<CrusadeResponse> getCrusade(@PathVariable Long id) {
+    public ResponseEntity<CrusadeResponse> getCrusade(
+            @PathVariable Long id,
+            @AuthenticationPrincipal OAuth2User principal) {
         long startTime = System.currentTimeMillis();
 
         try {
@@ -72,12 +74,13 @@ public class CrusadeController {
 
             if (crusade.isPresent()) {
                 long duration = System.currentTimeMillis() - startTime;
-                loggingService.logUserAction(getCurrentUserId(), "VIEW_CRUSADE",
+                String userId = getUserIdentifier(principal);
+                loggingService.logUserAction(userId, "VIEW_CRUSADE",
                         "Viewed crusade: " + crusade.get().getName());
                 loggingService.logPerformance("GET_CRUSADE", duration,
-                        Map.of("crusadeId", id.toString()));
+                        Map.of("crusadeId", id.toString(), "userId", userId));
 
-                logger.info("Successfully retrieved crusade: {}", id);
+                logger.info("User {} successfully retrieved crusade: {}", userId, id);
                 return ResponseEntity.ok(crusade.get());
             } else {
                 logger.warn("Active crusade not found: {}", id);
@@ -95,7 +98,9 @@ public class CrusadeController {
     }
 
     @GetMapping("/club/{clubId}")
-    public ResponseEntity<List<CrusadeResponse>> getCrusadesByClub(@PathVariable Long clubId) {
+    public ResponseEntity<List<CrusadeResponse>> getCrusadesByClub(
+            @PathVariable Long clubId,
+            @AuthenticationPrincipal OAuth2User principal) {
         long startTime = System.currentTimeMillis();
 
         try {
@@ -104,12 +109,13 @@ public class CrusadeController {
             List<CrusadeResponse> crusades = crusadeService.getCrusadesByClub(clubId);
 
             long duration = System.currentTimeMillis() - startTime;
-            loggingService.logUserAction(getCurrentUserId(), "VIEW_CLUB_CRUSADES",
+            String userId = getUserIdentifier(principal);
+            loggingService.logUserAction(userId, "VIEW_CLUB_CRUSADES",
                     "Viewed crusades for club: " + clubId);
             loggingService.logPerformance("GET_CRUSADES_BY_CLUB", duration,
-                    Map.of("clubId", clubId.toString(), "crusadeCount", String.valueOf(crusades.size())));
+                    Map.of("clubId", clubId.toString(), "crusadeCount", String.valueOf(crusades.size()), "userId", userId));
 
-            logger.info("Successfully retrieved {} crusades for club: {}", crusades.size(), clubId);
+            logger.info("User {} successfully retrieved {} crusades for club: {}", userId, crusades.size(), clubId);
             return ResponseEntity.ok(crusades);
 
         } catch (Exception e) {
@@ -123,7 +129,9 @@ public class CrusadeController {
     }
 
     @GetMapping("/club/{clubId}/active")
-    public ResponseEntity<List<CrusadeResponse>> getActiveCrusadesByClub(@PathVariable Long clubId) {
+    public ResponseEntity<List<CrusadeResponse>> getActiveCrusadesByClub(
+            @PathVariable Long clubId,
+            @AuthenticationPrincipal OAuth2User principal) {
         long startTime = System.currentTimeMillis();
 
         try {
@@ -132,12 +140,13 @@ public class CrusadeController {
             List<CrusadeResponse> crusades = crusadeService.getActiveCrusadesByClub(clubId);
 
             long duration = System.currentTimeMillis() - startTime;
-            loggingService.logUserAction(getCurrentUserId(), "VIEW_ACTIVE_CLUB_CRUSADES",
+            String userId = getUserIdentifier(principal);
+            loggingService.logUserAction(userId, "VIEW_ACTIVE_CLUB_CRUSADES",
                     "Viewed active crusades for club: " + clubId);
             loggingService.logPerformance("GET_ACTIVE_CRUSADES_BY_CLUB", duration,
-                    Map.of("clubId", clubId.toString(), "crusadeCount", String.valueOf(crusades.size())));
+                    Map.of("clubId", clubId.toString(), "crusadeCount", String.valueOf(crusades.size()), "userId", userId));
 
-            logger.info("Successfully retrieved {} active crusades for club: {}", crusades.size(), clubId);
+            logger.info("User {} successfully retrieved {} active crusades for club: {}", userId, crusades.size(), clubId);
             return ResponseEntity.ok(crusades);
 
         } catch (Exception e) {
@@ -378,16 +387,19 @@ public class CrusadeController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<CrusadeResponse>> searchCrusadesByName(@RequestParam String name) {
+    public ResponseEntity<List<CrusadeResponse>> searchCrusadesByName(
+            @RequestParam String name,
+            @AuthenticationPrincipal OAuth2User principal) {
         try {
             logger.debug("Searching crusades by name: {}", name);
 
             List<CrusadeResponse> crusades = crusadeService.searchCrusadesByName(name);
 
-            loggingService.logUserAction(getCurrentUserId(), "SEARCH_CRUSADES",
+            String userId = getUserIdentifier(principal);
+            loggingService.logUserAction(userId, "SEARCH_CRUSADES",
                     "Searched crusades by name: " + name);
 
-            logger.info("Successfully found {} crusades matching name: {}", crusades.size(), name);
+            logger.info("User {} successfully found {} crusades matching name: {}", userId, crusades.size(), name);
             return ResponseEntity.ok(crusades);
 
         } catch (Exception e) {
@@ -397,6 +409,28 @@ public class CrusadeController {
             logger.error("Failed to search crusades by name: {}", name, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
+    }
+
+    /**
+     * Get user identifier for logging purposes
+     * Returns email if available, Google ID if not, or "anonymous" if not authenticated
+     */
+    private String getUserIdentifier(OAuth2User principal) {
+        if (principal == null) {
+            return "anonymous";
+        }
+        
+        String email = principal.getAttribute("email");
+        if (email != null) {
+            return email;
+        }
+        
+        String googleId = principal.getAttribute("sub");
+        if (googleId != null) {
+            return "google:" + googleId;
+        }
+        
+        return "anonymous";
     }
 
 }
