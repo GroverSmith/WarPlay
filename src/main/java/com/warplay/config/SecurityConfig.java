@@ -32,6 +32,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(authz -> authz
                 // Public endpoints - no authentication required
                 .requestMatchers("/api/clubs", "/api/clubs/**").permitAll()
+                .requestMatchers("/api/crusades", "/api/crusades/**").permitAll()
                 .requestMatchers("/api/health").permitAll()
                 .requestMatchers("/api/test/**").permitAll()
                 
