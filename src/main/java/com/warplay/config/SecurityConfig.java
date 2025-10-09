@@ -42,6 +42,9 @@ public class SecurityConfig {
                 .requestMatchers("/api/crusades/club/{clubId}/active").permitAll()
                 .requestMatchers("/api/crusades/search").permitAll()
                 
+                // Public read-only user-club endpoints
+                .requestMatchers("/api/user-clubs/club/{clubId}").permitAll()
+                
                 // Authentication endpoints - no authentication required
                 .requestMatchers("/api/auth/**").permitAll()
                 
