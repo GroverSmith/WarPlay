@@ -22,8 +22,8 @@ public interface UserClubRepository extends JpaRepository<UserClub, Long> {
     // Find active memberships for a user
     List<UserClub> findByUserIdAndIsActiveTrue(Long userId);
     
-    // Find active memberships for a user with eager loading of Club
-    @Query("SELECT uc FROM UserClub uc JOIN FETCH uc.club WHERE uc.user.id = :userId AND uc.isActive = true")
+    // Find active memberships for a user with eager loading of User and Club
+    @Query("SELECT uc FROM UserClub uc JOIN FETCH uc.user JOIN FETCH uc.club WHERE uc.user.id = :userId AND uc.isActive = true")
     List<UserClub> findByUserIdAndIsActiveTrueWithClub(@Param("userId") Long userId);
 
     // Find all memberships for a club
