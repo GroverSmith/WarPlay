@@ -227,7 +227,7 @@ public class UserClubService {
     public List<UserClub> getClubMembers(Long clubId, boolean activeOnly) {
         logger.debug("Fetching members for club: {} (active only: {})", clubId, activeOnly);
         return activeOnly ?
-                userClubRepository.findByClubIdAndIsActiveTrue(clubId) :
+                userClubRepository.findByClubIdAndIsActiveTrueWithUser(clubId) :
                 userClubRepository.findByClubId(clubId);
     }
 
