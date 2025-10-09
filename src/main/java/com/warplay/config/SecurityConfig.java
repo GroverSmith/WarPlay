@@ -44,6 +44,10 @@ public class SecurityConfig {
                 
                 // Public read-only user-club endpoints
                 .requestMatchers("/api/user-clubs/club/{clubId}").permitAll()
+                .requestMatchers("/api/user-clubs/user/{userId}").permitAll()
+                
+                // Public read-only user endpoints
+                .requestMatchers("/api/users/{id}").permitAll()
                 
                 // Authentication endpoints - no authentication required
                 .requestMatchers("/api/auth/**").permitAll()
