@@ -1,5 +1,6 @@
 package com.warplay.controller;
 
+import com.warplay.dto.UserUpdateDTO;
 import com.warplay.entity.User;
 import com.warplay.service.UserService;
 import com.warplay.service.LoggingService;
@@ -130,14 +131,14 @@ public class UserController {
 
     // Update user profile
     @PutMapping("/{id}")
-    public ResponseEntity<User> updateUser(@PathVariable Long id, @Valid @RequestBody User userDetails) {
+    public ResponseEntity<User> updateUser(@PathVariable Long id, @Valid @RequestBody UserUpdateDTO updateDTO) {
         long startTime = System.currentTimeMillis();
         String currentUserId = getCurrentUserId();
 
         try {
-            logger.debug("Updating user: {}", id);
+            logger.debug("Updating user: {} with data: {}", id, updateDTO);
 
-            Optional<User> updatedUser = userService.updateUser(id, userDetails);
+            Optional<User> updatedUser = userService.updateUserProfile(id, updateDTO);
 
             if (updatedUser.isPresent()) {
                 long duration = System.currentTimeMillis() - startTime;

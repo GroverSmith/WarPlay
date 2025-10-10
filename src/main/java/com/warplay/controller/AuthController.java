@@ -44,8 +44,11 @@ public class AuthController {
                 GoogleIdToken.Payload tokenPayload = idToken.getPayload();
                 String email = tokenPayload.getEmail();
                 String name = (String) tokenPayload.get("name");
-                String pictureUrl = (String) tokenPayload.get("picture");
                 String googleId = tokenPayload.getSubject();
+                
+                // Note: Google JWT often doesn't include profile picture
+                // Users can upload their own custom profile picture through the edit profile page
+                String pictureUrl = (String) tokenPayload.get("picture");
 
                 // Check if user already exists by Google ID
                 Optional<User> existingUser = userRepository.findByGoogleId(googleId);
@@ -93,7 +96,8 @@ public class AuthController {
                         "message", "User authenticated successfully",
                         "email", email,
                         "name", name,
-                        "googleId", googleId
+                        "googleId", googleId,
+                        "profilePictureUrl", savedUser.getProfilePictureUrl() != null ? savedUser.getProfilePictureUrl() : ""
                 ));
             } else {
                 logger.error("invalid ID token:{} ", idTokenString);

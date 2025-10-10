@@ -220,14 +220,14 @@ public class UserClubService {
     public List<UserClub> getUserClubs(Long userId, boolean activeOnly) {
         logger.debug("Fetching clubs for user: {} (active only: {})", userId, activeOnly);
         return activeOnly ?
-                userClubRepository.findByUserIdAndIsActiveTrue(userId) :
+                userClubRepository.findByUserIdAndIsActiveTrueWithClub(userId) :
                 userClubRepository.findByUserId(userId);
     }
 
     public List<UserClub> getClubMembers(Long clubId, boolean activeOnly) {
         logger.debug("Fetching members for club: {} (active only: {})", clubId, activeOnly);
         return activeOnly ?
-                userClubRepository.findByClubIdAndIsActiveTrue(clubId) :
+                userClubRepository.findByClubIdAndIsActiveTrueWithUser(clubId) :
                 userClubRepository.findByClubId(clubId);
     }
 
