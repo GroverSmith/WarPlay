@@ -184,6 +184,11 @@ public class UserService {
                 existingUser.setName(userDetails.getName());
                 existingUser.setDiscordHandle(userDetails.getDiscordHandle());
                 existingUser.setNotes(userDetails.getNotes());
+                
+                // Update profile picture URL if provided
+                if (userDetails.getProfilePictureUrl() != null) {
+                    existingUser.setProfilePictureUrl(userDetails.getProfilePictureUrl());
+                }
 
                 User savedUser = userRepository.save(existingUser);
 
