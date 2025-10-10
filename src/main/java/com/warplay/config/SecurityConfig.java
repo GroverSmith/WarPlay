@@ -48,6 +48,7 @@ public class SecurityConfig {
                 
                 // Public read-only user endpoints
                 .requestMatchers("/api/users/{id}").permitAll()
+                .requestMatchers("/api/users/email/{email}").permitAll()
                 
                 // Authentication endpoints - no authentication required
                 .requestMatchers("/api/auth/**").permitAll()

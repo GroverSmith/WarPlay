@@ -170,8 +170,7 @@ public class UserService {
         long startTime = System.currentTimeMillis();
 
         try {
-            logger.info("Updating user profile: {} with DTO: {}", id, updateDTO);
-            logger.info("Profile picture URL in DTO: {}", updateDTO.getProfilePictureUrl() != null ? "present (length: " + updateDTO.getProfilePictureUrl().length() + ")" : "null");
+            logger.debug("Updating user profile: {} with DTO: {}", id, updateDTO);
 
             Optional<User> existingUserOpt = userRepository.findByIdActive(id);
 
@@ -184,10 +183,7 @@ public class UserService {
                 
                 // Update profile picture URL if provided
                 if (updateDTO.getProfilePictureUrl() != null && !updateDTO.getProfilePictureUrl().isEmpty()) {
-                    logger.info("Setting profile picture URL for user {}", id);
                     existingUser.setProfilePictureUrl(updateDTO.getProfilePictureUrl());
-                } else {
-                    logger.warn("Profile picture URL is null or empty");
                 }
 
                 User savedUser = userRepository.save(existingUser);
