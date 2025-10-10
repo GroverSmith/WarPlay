@@ -1,5 +1,6 @@
 package com.warplay.service;
 
+import com.warplay.dto.UserUpdateDTO;
 import com.warplay.entity.User;
 import com.warplay.repository.UserRepository;
 import org.slf4j.Logger;
@@ -165,6 +166,62 @@ public class UserService {
         }
     }
 
+    public Optional<User> updateUserProfile(Long id, UserUpdateDTO updateDTO) {
+        long startTime = System.currentTimeMillis();
+
+        try {
+            logger.debug("Updating user profile: {} with DTO: {}", id, updateDTO);
+
+            Optional<User> existingUserOpt = userRepository.findByIdActive(id);
+
+            if (existingUserOpt.isPresent()) {
+                User existingUser = existingUserOpt.get();
+
+                // Update only the editable fields
+                existingUser.setDiscordHandle(updateDTO.getDiscordHandle());
+                existingUser.setNotes(updateDTO.getNotes());
+                
+                // Update profile picture URL if provided
+                if (updateDTO.getProfilePictureUrl() != null) {
+                    existingUser.setProfilePictureUrl(updateDTO.getProfilePictureUrl());
+                }
+
+                User savedUser = userRepository.save(existingUser);
+
+                long duration = System.currentTimeMillis() - startTime;
+                loggingService.logDatabaseOperation("users", "UPDATE", true,
+                        "Updated user profile: " + savedUser.getName());
+                loggingService.logUserAction(id.toString(), "UPDATE_PROFILE",
+                        "Updated profile information");
+                loggingService.logPerformance("DB_UPDATE_USER", duration,
+                        Map.of("userId", id.toString()));
+
+                logger.info("Successfully updated user profile: {} (ID: {})",
+                        savedUser.getName(), id);
+
+                return Optional.of(savedUser);
+            } else {
+                long duration = System.currentTimeMillis() - startTime;
+                loggingService.logDatabaseOperation("users", "UPDATE", false,
+                        "User not found for update");
+
+                logger.warn("Active user not found for update: {}", id);
+                return Optional.empty();
+            }
+
+        } catch (DataAccessException e) {
+            long duration = System.currentTimeMillis() - startTime;
+            loggingService.logDatabaseOperation("users", "UPDATE", false,
+                    "Database error: " + e.getMessage());
+            loggingService.logError("DB_UPDATE_USER", e,
+                    Map.of("userId", id.toString(), "duration", String.valueOf(duration)));
+
+            logger.error("Failed to update user: {}", id, e);
+            throw new RuntimeException("Failed to update user", e);
+        }
+    }
+
+    // Legacy method - kept for backward compatibility if needed elsewhere
     public Optional<User> updateUser(Long id, User userDetails) {
         long startTime = System.currentTimeMillis();
 
