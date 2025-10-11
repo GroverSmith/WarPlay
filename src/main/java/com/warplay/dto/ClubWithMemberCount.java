@@ -15,6 +15,7 @@ public class ClubWithMemberCount {
     private String provinceCode;
     private String city;
     private String postalCode;
+    private String logoUrl;
     private LocalDateTime createdTimestamp;
     private LocalDateTime deletedTimestamp;
     private Long memberCount;
@@ -33,6 +34,7 @@ public class ClubWithMemberCount {
         this.provinceCode = club.getProvinceCode();
         this.city = club.getCity();
         this.postalCode = club.getPostalCode();
+        this.logoUrl = club.getLogoUrl();
         this.createdTimestamp = club.getCreatedTimestamp();
         this.deletedTimestamp = club.getDeletedTimestamp();
         this.memberCount = memberCount;
@@ -117,6 +119,14 @@ public class ClubWithMemberCount {
 
     public void setPostalCode(String postalCode) {
         this.postalCode = postalCode;
+    }
+
+    public String getLogoUrl() {
+        return logoUrl;
+    }
+
+    public void setLogoUrl(String logoUrl) {
+        this.logoUrl = logoUrl;
     }
 
     public LocalDateTime getCreatedTimestamp() {
