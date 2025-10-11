@@ -1,5 +1,6 @@
 package com.warplay.service;
 
+import com.warplay.dto.ClubUpdateDTO;
 import com.warplay.dto.ClubWithMemberCount;
 import com.warplay.entity.Club;
 import com.warplay.repository.ClubRepository;
@@ -180,6 +181,65 @@ public class ClubService {
         }
     }
 
+    public Optional<Club> updateClubProfile(Long id, ClubUpdateDTO updateDTO) {
+        long startTime = System.currentTimeMillis();
+
+        try {
+            logger.debug("Updating club profile: {} with DTO: {}", id, updateDTO);
+
+            Optional<Club> existingClubOpt = clubRepository.findByIdAndDeletedTimestampIsNull(id);
+
+            if (existingClubOpt.isPresent()) {
+                Club existingClub = existingClubOpt.get();
+
+                // Update only the editable fields (gameSystem is NOT changed)
+                existingClub.setName(updateDTO.getName());
+                existingClub.setDescription(updateDTO.getDescription());
+                existingClub.setContactEmail(updateDTO.getContactEmail());
+                existingClub.setCountryCode(updateDTO.getCountryCode());
+                existingClub.setProvinceCode(updateDTO.getProvinceCode());
+                existingClub.setCity(updateDTO.getCity());
+                existingClub.setPostalCode(updateDTO.getPostalCode());
+                
+                // Update logo if provided
+                if (updateDTO.getLogoUrl() != null) {
+                    existingClub.setLogoUrl(updateDTO.getLogoUrl());
+                }
+
+                Club savedClub = clubRepository.save(existingClub);
+
+                long duration = System.currentTimeMillis() - startTime;
+                loggingService.logDatabaseOperation("clubs", "UPDATE", true,
+                        "Updated club: " + savedClub.getName());
+                loggingService.logPerformance("DB_UPDATE_CLUB", duration,
+                        Map.of("clubId", id.toString()));
+
+                logger.info("Successfully updated club profile: {} (ID: {})",
+                        savedClub.getName(), id);
+
+                return Optional.of(savedClub);
+            } else {
+                long duration = System.currentTimeMillis() - startTime;
+                loggingService.logDatabaseOperation("clubs", "UPDATE", false,
+                        "Club not found for update");
+
+                logger.warn("Active club not found for update: {}", id);
+                return Optional.empty();
+            }
+
+        } catch (DataAccessException e) {
+            long duration = System.currentTimeMillis() - startTime;
+            loggingService.logDatabaseOperation("clubs", "UPDATE", false,
+                    "Database error: " + e.getMessage());
+            loggingService.logError("DB_UPDATE_CLUB", e,
+                    Map.of("clubId", id.toString(), "duration", String.valueOf(duration)));
+
+            logger.error("Failed to update club: {}", id, e);
+            throw new RuntimeException("Failed to update club", e);
+        }
+    }
+
+    // Legacy method - kept for backward compatibility if needed elsewhere
     public Optional<Club> updateClub(Long id, Club updatedClub) {
         long startTime = System.currentTimeMillis();
 

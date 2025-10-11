@@ -1,5 +1,6 @@
 package com.warplay.controller;
 
+import com.warplay.dto.ClubUpdateDTO;
 import com.warplay.dto.ClubWithMemberCount;
 import com.warplay.entity.Club;
 import com.warplay.service.ClubService;
@@ -130,14 +131,14 @@ public class ClubController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Club> updateClub(@PathVariable Long id, @Valid @RequestBody Club club) {
+    public ResponseEntity<Club> updateClub(@PathVariable Long id, @Valid @RequestBody ClubUpdateDTO updateDTO) {
         long startTime = System.currentTimeMillis();
         String userId = getCurrentUserId();
 
         try {
-            logger.debug("Updating club: {}", id);
+            logger.debug("Updating club: {} with DTO: {}", id, updateDTO);
 
-            Optional<Club> updatedClub = clubService.updateClub(id, club);
+            Optional<Club> updatedClub = clubService.updateClubProfile(id, updateDTO);
 
             if (updatedClub.isPresent()) {
                 long duration = System.currentTimeMillis() - startTime;
