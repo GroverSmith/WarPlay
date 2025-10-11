@@ -61,7 +61,7 @@ public class ForceService {
         force.setFaction(request.getFaction());
         force.setSubFaction(request.getSubFaction());
         force.setDetachment(request.getDetachment());
-        force.setSupplyLimit(request.getSupplyLimit() != null ? request.getSupplyLimit() : 50);
+        force.setSupplyLimit(request.getSupplyLimit() != null ? request.getSupplyLimit() : 0);
         force.setSupplyUsed(request.getSupplyUsed() != null ? request.getSupplyUsed() : 0);
         force.setRequisitionPoints(request.getRequisitionPoints() != null ? request.getRequisitionPoints() : 5);
         force.setBattlesWon(request.getBattlesWon() != null ? request.getBattlesWon() : 0);
