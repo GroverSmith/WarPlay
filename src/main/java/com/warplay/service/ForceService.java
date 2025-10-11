@@ -5,6 +5,8 @@ import com.warplay.entity.Force;
 import com.warplay.entity.User;
 import com.warplay.repository.ForceRepository;
 import com.warplay.repository.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,6 +17,8 @@ import java.util.Optional;
 
 @Service
 public class ForceService {
+    
+    private static final Logger logger = LoggerFactory.getLogger(ForceService.class);
     
     @Autowired
     private ForceRepository forceRepository;
@@ -30,7 +34,7 @@ public class ForceService {
      */
     @Transactional
     public Force createForce(CreateForceRequest request, String googleUserId) {
-        loggingService.log("ForceService.createForce", "Creating force: " + request.getName() + " for club: " + request.getClubId());
+        logger.info("Creating force: {} for club: {}", request.getName(), request.getClubId());
         
         // Find user by Google ID
         User user = userRepository.findByGoogleId(googleUserId)
@@ -66,7 +70,9 @@ public class ForceService {
         force.setNotes(request.getNotes());
         
         Force savedForce = forceRepository.save(force);
-        loggingService.log("ForceService.createForce", "Force created with ID: " + savedForce.getId());
+        loggingService.logDatabaseOperation("forces", "INSERT", true, 
+            "Force created with ID: " + savedForce.getId() + " for club: " + request.getClubId());
+        logger.info("Force created successfully with ID: {}", savedForce.getId());
         
         return savedForce;
     }
@@ -75,31 +81,37 @@ public class ForceService {
      * Get all forces for a club
      */
     public List<Force> getForcesByClubId(Long clubId) {
-        loggingService.log("ForceService.getForcesByClubId", "Fetching forces for club: " + clubId);
-        return forceRepository.findByClubIdAndDeletedTimestampIsNull(clubId);
+        logger.debug("Fetching forces for club: {}", clubId);
+        List<Force> forces = forceRepository.findByClubIdAndDeletedTimestampIsNull(clubId);
+        logger.info("Retrieved {} forces for club: {}", forces.size(), clubId);
+        return forces;
     }
     
     /**
      * Get all forces for a crusade
      */
     public List<Force> getForcesByCrusadeId(Long crusadeId) {
-        loggingService.log("ForceService.getForcesByCrusadeId", "Fetching forces for crusade: " + crusadeId);
-        return forceRepository.findByCrusadeIdAndDeletedTimestampIsNull(crusadeId);
+        logger.debug("Fetching forces for crusade: {}", crusadeId);
+        List<Force> forces = forceRepository.findByCrusadeIdAndDeletedTimestampIsNull(crusadeId);
+        logger.info("Retrieved {} forces for crusade: {}", forces.size(), crusadeId);
+        return forces;
     }
     
     /**
      * Get all forces for a user
      */
     public List<Force> getForcesByUserId(Long userId) {
-        loggingService.log("ForceService.getForcesByUserId", "Fetching forces for user: " + userId);
-        return forceRepository.findByUserIdAndDeletedTimestampIsNull(userId);
+        logger.debug("Fetching forces for user: {}", userId);
+        List<Force> forces = forceRepository.findByUserIdAndDeletedTimestampIsNull(userId);
+        logger.info("Retrieved {} forces for user: {}", forces.size(), userId);
+        return forces;
     }
     
     /**
      * Get a force by ID
      */
     public Optional<Force> getForceById(Long id) {
-        loggingService.log("ForceService.getForceById", "Fetching force: " + id);
+        logger.debug("Fetching force: {}", id);
         return forceRepository.findByIdAndDeletedTimestampIsNull(id);
     }
     
@@ -107,8 +119,10 @@ public class ForceService {
      * Get all forces
      */
     public List<Force> getAllForces() {
-        loggingService.log("ForceService.getAllForces", "Fetching all forces");
-        return forceRepository.findAllNonDeleted();
+        logger.debug("Fetching all forces");
+        List<Force> forces = forceRepository.findAllNonDeleted();
+        logger.info("Retrieved {} total forces", forces.size());
+        return forces;
     }
     
     /**
@@ -116,7 +130,7 @@ public class ForceService {
      */
     @Transactional
     public Force updateForce(Long id, CreateForceRequest request, String googleUserId) {
-        loggingService.log("ForceService.updateForce", "Updating force: " + id);
+        logger.info("Updating force: {}", id);
         
         Force force = forceRepository.findByIdAndDeletedTimestampIsNull(id)
             .orElseThrow(() -> new RuntimeException("Force not found"));
@@ -127,6 +141,7 @@ public class ForceService {
         
         // Verify user owns this force
         if (!force.getUserId().equals(user.getId())) {
+            logger.warn("User {} attempted to update force {} owned by user {}", user.getId(), id, force.getUserId());
             throw new RuntimeException("You do not have permission to update this force");
         }
         
@@ -168,7 +183,12 @@ public class ForceService {
             force.setCrusadeId(request.getCrusadeId());
         }
         
-        return forceRepository.save(force);
+        Force updatedForce = forceRepository.save(force);
+        loggingService.logDatabaseOperation("forces", "UPDATE", true, 
+            "Force updated: " + id);
+        logger.info("Force updated successfully: {}", id);
+        
+        return updatedForce;
     }
     
     /**
@@ -176,7 +196,7 @@ public class ForceService {
      */
     @Transactional
     public void deleteForce(Long id, String googleUserId) {
-        loggingService.log("ForceService.deleteForce", "Deleting force: " + id);
+        logger.info("Deleting force: {}", id);
         
         Force force = forceRepository.findByIdAndDeletedTimestampIsNull(id)
             .orElseThrow(() -> new RuntimeException("Force not found"));
@@ -187,13 +207,16 @@ public class ForceService {
         
         // Verify user owns this force
         if (!force.getUserId().equals(user.getId())) {
+            logger.warn("User {} attempted to delete force {} owned by user {}", user.getId(), id, force.getUserId());
             throw new RuntimeException("You do not have permission to delete this force");
         }
         
         force.setDeletedTimestamp(LocalDateTime.now());
         forceRepository.save(force);
         
-        loggingService.log("ForceService.deleteForce", "Force deleted: " + id);
+        loggingService.logDatabaseOperation("forces", "DELETE", true, 
+            "Force soft deleted: " + id);
+        logger.info("Force deleted successfully: {}", id);
     }
 }
 

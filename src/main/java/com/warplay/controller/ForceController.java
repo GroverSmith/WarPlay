@@ -3,7 +3,8 @@ package com.warplay.controller;
 import com.warplay.dto.CreateForceRequest;
 import com.warplay.entity.Force;
 import com.warplay.service.ForceService;
-import com.warplay.service.LoggingService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,11 +18,10 @@ import java.util.Map;
 @CrossOrigin(origins = {"http://localhost:3000", "https://warplay.org"}, allowCredentials = "true")
 public class ForceController {
     
-    @Autowired
-    private ForceService forceService;
+    private static final Logger logger = LoggerFactory.getLogger(ForceController.class);
     
     @Autowired
-    private LoggingService loggingService;
+    private ForceService forceService;
     
     /**
      * Create a new force
@@ -32,11 +32,12 @@ public class ForceController {
             @RequestHeader(value = "Authorization", required = false) String authHeader) {
         
         try {
-            loggingService.log("ForceController.createForce", "Creating force: " + request.getName());
+            logger.info("API request to create force: {}", request.getName());
             
             // Extract Google user ID from Authorization header
             String googleUserId = extractUserIdFromAuth(authHeader);
             if (googleUserId == null) {
+                logger.warn("Unauthorized attempt to create force");
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("message", "Authentication required"));
             }
@@ -45,11 +46,11 @@ public class ForceController {
             return ResponseEntity.status(HttpStatus.CREATED).body(force);
             
         } catch (IllegalArgumentException e) {
-            loggingService.log("ForceController.createForce", "Validation error: " + e.getMessage());
+            logger.warn("Validation error creating force: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(Map.of("message", e.getMessage()));
         } catch (Exception e) {
-            loggingService.log("ForceController.createForce", "Error creating force: " + e.getMessage());
+            logger.error("Error creating force: {}", e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(Map.of("message", "Failed to create force: " + e.getMessage()));
         }
@@ -61,11 +62,11 @@ public class ForceController {
     @GetMapping("/club/{clubId}")
     public ResponseEntity<?> getForcesByClubId(@PathVariable Long clubId) {
         try {
-            loggingService.log("ForceController.getForcesByClubId", "Fetching forces for club: " + clubId);
+            logger.debug("API request to fetch forces for club: {}", clubId);
             List<Force> forces = forceService.getForcesByClubId(clubId);
             return ResponseEntity.ok(forces);
         } catch (Exception e) {
-            loggingService.log("ForceController.getForcesByClubId", "Error: " + e.getMessage());
+            logger.error("Error fetching forces for club {}: {}", clubId, e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(Map.of("message", "Failed to fetch forces: " + e.getMessage()));
         }
@@ -77,11 +78,11 @@ public class ForceController {
     @GetMapping("/crusade/{crusadeId}")
     public ResponseEntity<?> getForcesByCrusadeId(@PathVariable Long crusadeId) {
         try {
-            loggingService.log("ForceController.getForcesByCrusadeId", "Fetching forces for crusade: " + crusadeId);
+            logger.debug("API request to fetch forces for crusade: {}", crusadeId);
             List<Force> forces = forceService.getForcesByCrusadeId(crusadeId);
             return ResponseEntity.ok(forces);
         } catch (Exception e) {
-            loggingService.log("ForceController.getForcesByCrusadeId", "Error: " + e.getMessage());
+            logger.error("Error fetching forces for crusade {}: {}", crusadeId, e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(Map.of("message", "Failed to fetch forces: " + e.getMessage()));
         }
@@ -93,11 +94,11 @@ public class ForceController {
     @GetMapping("/user/{userId}")
     public ResponseEntity<?> getForcesByUserId(@PathVariable Long userId) {
         try {
-            loggingService.log("ForceController.getForcesByUserId", "Fetching forces for user: " + userId);
+            logger.debug("API request to fetch forces for user: {}", userId);
             List<Force> forces = forceService.getForcesByUserId(userId);
             return ResponseEntity.ok(forces);
         } catch (Exception e) {
-            loggingService.log("ForceController.getForcesByUserId", "Error: " + e.getMessage());
+            logger.error("Error fetching forces for user {}: {}", userId, e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(Map.of("message", "Failed to fetch forces: " + e.getMessage()));
         }
@@ -109,12 +110,12 @@ public class ForceController {
     @GetMapping("/{id}")
     public ResponseEntity<?> getForceById(@PathVariable Long id) {
         try {
-            loggingService.log("ForceController.getForceById", "Fetching force: " + id);
+            logger.debug("API request to fetch force: {}", id);
             return forceService.getForceById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
         } catch (Exception e) {
-            loggingService.log("ForceController.getForceById", "Error: " + e.getMessage());
+            logger.error("Error fetching force {}: {}", id, e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(Map.of("message", "Failed to fetch force: " + e.getMessage()));
         }
@@ -126,11 +127,11 @@ public class ForceController {
     @GetMapping
     public ResponseEntity<?> getAllForces() {
         try {
-            loggingService.log("ForceController.getAllForces", "Fetching all forces");
+            logger.debug("API request to fetch all forces");
             List<Force> forces = forceService.getAllForces();
             return ResponseEntity.ok(forces);
         } catch (Exception e) {
-            loggingService.log("ForceController.getAllForces", "Error: " + e.getMessage());
+            logger.error("Error fetching all forces: {}", e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(Map.of("message", "Failed to fetch forces: " + e.getMessage()));
         }
@@ -146,11 +147,12 @@ public class ForceController {
             @RequestHeader(value = "Authorization", required = false) String authHeader) {
         
         try {
-            loggingService.log("ForceController.updateForce", "Updating force: " + id);
+            logger.info("API request to update force: {}", id);
             
             // Extract Google user ID from Authorization header
             String googleUserId = extractUserIdFromAuth(authHeader);
             if (googleUserId == null) {
+                logger.warn("Unauthorized attempt to update force: {}", id);
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("message", "Authentication required"));
             }
@@ -159,11 +161,11 @@ public class ForceController {
             return ResponseEntity.ok(force);
             
         } catch (RuntimeException e) {
-            loggingService.log("ForceController.updateForce", "Error: " + e.getMessage());
+            logger.warn("Error updating force {}: {}", id, e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(Map.of("message", e.getMessage()));
         } catch (Exception e) {
-            loggingService.log("ForceController.updateForce", "Error: " + e.getMessage());
+            logger.error("Error updating force {}: {}", id, e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(Map.of("message", "Failed to update force: " + e.getMessage()));
         }
@@ -178,11 +180,12 @@ public class ForceController {
             @RequestHeader(value = "Authorization", required = false) String authHeader) {
         
         try {
-            loggingService.log("ForceController.deleteForce", "Deleting force: " + id);
+            logger.info("API request to delete force: {}", id);
             
             // Extract Google user ID from Authorization header
             String googleUserId = extractUserIdFromAuth(authHeader);
             if (googleUserId == null) {
+                logger.warn("Unauthorized attempt to delete force: {}", id);
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("message", "Authentication required"));
             }
@@ -191,11 +194,11 @@ public class ForceController {
             return ResponseEntity.ok(Map.of("message", "Force deleted successfully"));
             
         } catch (RuntimeException e) {
-            loggingService.log("ForceController.deleteForce", "Error: " + e.getMessage());
+            logger.warn("Error deleting force {}: {}", id, e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(Map.of("message", e.getMessage()));
         } catch (Exception e) {
-            loggingService.log("ForceController.deleteForce", "Error: " + e.getMessage());
+            logger.error("Error deleting force {}: {}", id, e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(Map.of("message", "Failed to delete force: " + e.getMessage()));
         }
