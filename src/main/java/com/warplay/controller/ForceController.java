@@ -1,7 +1,7 @@
 package com.warplay.controller;
 
 import com.warplay.dto.CreateForceRequest;
-import com.warplay.entity.Force;
+import com.warplay.dto.ForceResponse;
 import com.warplay.service.ForceService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,7 +42,7 @@ public class ForceController {
                     .body(Map.of("message", "Authentication required"));
             }
             
-            Force force = forceService.createForce(request, googleUserId);
+            ForceResponse force = forceService.createForce(request, googleUserId);
             return ResponseEntity.status(HttpStatus.CREATED).body(force);
             
         } catch (IllegalArgumentException e) {
@@ -63,7 +63,7 @@ public class ForceController {
     public ResponseEntity<?> getForcesByClubId(@PathVariable Long clubId) {
         try {
             logger.debug("API request to fetch forces for club: {}", clubId);
-            List<Force> forces = forceService.getForcesByClubId(clubId);
+            List<ForceResponse> forces = forceService.getForcesByClubId(clubId);
             return ResponseEntity.ok(forces);
         } catch (Exception e) {
             logger.error("Error fetching forces for club {}: {}", clubId, e.getMessage(), e);
@@ -79,7 +79,7 @@ public class ForceController {
     public ResponseEntity<?> getForcesByUserId(@PathVariable Long userId) {
         try {
             logger.debug("API request to fetch forces for user: {}", userId);
-            List<Force> forces = forceService.getForcesByUserId(userId);
+            List<ForceResponse> forces = forceService.getForcesByUserId(userId);
             return ResponseEntity.ok(forces);
         } catch (Exception e) {
             logger.error("Error fetching forces for user {}: {}", userId, e.getMessage(), e);
@@ -112,7 +112,7 @@ public class ForceController {
     public ResponseEntity<?> getAllForces() {
         try {
             logger.debug("API request to fetch all forces");
-            List<Force> forces = forceService.getAllForces();
+            List<ForceResponse> forces = forceService.getAllForces();
             return ResponseEntity.ok(forces);
         } catch (Exception e) {
             logger.error("Error fetching all forces: {}", e.getMessage(), e);
@@ -141,7 +141,7 @@ public class ForceController {
                     .body(Map.of("message", "Authentication required"));
             }
             
-            Force force = forceService.updateForce(id, request, googleUserId);
+            ForceResponse force = forceService.updateForce(id, request, googleUserId);
             return ResponseEntity.ok(force);
             
         } catch (RuntimeException e) {
