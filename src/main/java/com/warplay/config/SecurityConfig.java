@@ -44,7 +44,6 @@ public class SecurityConfig {
                 
                 // Public read-only force endpoints (GET only)
                 .requestMatchers("/api/forces/club/{clubId}").permitAll()
-                .requestMatchers("/api/forces/crusade/{crusadeId}").permitAll()
                 .requestMatchers("/api/forces/user/{userId}").permitAll()
                 
                 // Public read-only user-club endpoints

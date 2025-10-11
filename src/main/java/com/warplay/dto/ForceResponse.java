@@ -1,65 +1,45 @@
-package com.warplay.entity;
+package com.warplay.dto;
 
-import jakarta.persistence.*;
+import com.warplay.entity.Force;
+import com.warplay.entity.User;
+
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "forces")
-public class Force {
-    
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class ForceResponse {
     private Long id;
-    
-    @Column(name = "club_id", nullable = false)
     private Long clubId;
-    
-    @Column(name = "user_id", nullable = false)
     private Long userId;
-    
-    @Column(name = "name", nullable = false, length = 200)
+    private String playerName;
     private String name;
-    
-    @Column(name = "faction", nullable = false, length = 100)
     private String faction;
-    
-    @Column(name = "sub_faction", length = 100)
     private String subFaction;
-    
-    @Column(name = "detachment", length = 100)
     private String detachment;
-    
-    @Column(name = "supply_limit")
     private Integer supplyLimit;
-    
-    @Column(name = "requisition_points")
     private Integer requisitionPoints;
-    
-    @Column(name = "notes", columnDefinition = "TEXT")
     private String notes;
-    
-    @Column(name = "created_timestamp", nullable = false, updatable = false)
     private LocalDateTime createdTimestamp;
-    
-    @Column(name = "updated_timestamp")
     private LocalDateTime updatedTimestamp;
     
-    @Column(name = "deleted_timestamp")
-    private LocalDateTime deletedTimestamp;
-    
-    @PrePersist
-    protected void onCreate() {
-        createdTimestamp = LocalDateTime.now();
-        updatedTimestamp = LocalDateTime.now();
+    // Constructor from Force entity
+    public ForceResponse(Force force) {
+        this.id = force.getId();
+        this.clubId = force.getClubId();
+        this.userId = force.getUserId();
+        this.name = force.getName();
+        this.faction = force.getFaction();
+        this.subFaction = force.getSubFaction();
+        this.detachment = force.getDetachment();
+        this.supplyLimit = force.getSupplyLimit();
+        this.requisitionPoints = force.getRequisitionPoints();
+        this.notes = force.getNotes();
+        this.createdTimestamp = force.getCreatedTimestamp();
+        this.updatedTimestamp = force.getUpdatedTimestamp();
     }
     
-    @PreUpdate
-    protected void onUpdate() {
-        updatedTimestamp = LocalDateTime.now();
-    }
-    
-    // Constructors
-    public Force() {
+    // Constructor from Force and User
+    public ForceResponse(Force force, User user) {
+        this(force);
+        this.playerName = user != null ? user.getName() : null;
     }
     
     // Getters and Setters
@@ -85,6 +65,14 @@ public class Force {
     
     public void setUserId(Long userId) {
         this.userId = userId;
+    }
+    
+    public String getPlayerName() {
+        return playerName;
+    }
+    
+    public void setPlayerName(String playerName) {
+        this.playerName = playerName;
     }
     
     public String getName() {
@@ -157,14 +145,6 @@ public class Force {
     
     public void setUpdatedTimestamp(LocalDateTime updatedTimestamp) {
         this.updatedTimestamp = updatedTimestamp;
-    }
-    
-    public LocalDateTime getDeletedTimestamp() {
-        return deletedTimestamp;
-    }
-    
-    public void setDeletedTimestamp(LocalDateTime deletedTimestamp) {
-        this.deletedTimestamp = deletedTimestamp;
     }
 }
 

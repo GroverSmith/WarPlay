@@ -16,10 +16,6 @@ public interface ForceRepository extends JpaRepository<Force, Long> {
     @Query("SELECT f FROM Force f WHERE f.clubId = :clubId AND f.deletedTimestamp IS NULL ORDER BY f.createdTimestamp DESC")
     List<Force> findByClubIdAndDeletedTimestampIsNull(@Param("clubId") Long clubId);
     
-    // Find all non-deleted forces for a crusade
-    @Query("SELECT f FROM Force f WHERE f.crusadeId = :crusadeId AND f.deletedTimestamp IS NULL ORDER BY f.createdTimestamp DESC")
-    List<Force> findByCrusadeIdAndDeletedTimestampIsNull(@Param("crusadeId") Long crusadeId);
-    
     // Find all non-deleted forces for a user
     @Query("SELECT f FROM Force f WHERE f.userId = :userId AND f.deletedTimestamp IS NULL ORDER BY f.createdTimestamp DESC")
     List<Force> findByUserIdAndDeletedTimestampIsNull(@Param("userId") Long userId);

@@ -1,6 +1,7 @@
 package com.warplay.service;
 
 import com.warplay.dto.CreateForceRequest;
+import com.warplay.dto.ForceResponse;
 import com.warplay.entity.Force;
 import com.warplay.entity.User;
 import com.warplay.repository.ForceRepository;
@@ -14,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class ForceService {
@@ -33,7 +35,7 @@ public class ForceService {
      * Create a new force
      */
     @Transactional
-    public Force createForce(CreateForceRequest request, String googleUserId) {
+    public ForceResponse createForce(CreateForceRequest request, String googleUserId) {
         logger.info("Creating force: {} for club: {}", request.getName(), request.getClubId());
         
         // Find user by Google ID
@@ -55,18 +57,13 @@ public class ForceService {
         
         Force force = new Force();
         force.setClubId(request.getClubId());
-        force.setCrusadeId(request.getCrusadeId());
         force.setUserId(user.getId());
         force.setName(request.getName());
         force.setFaction(request.getFaction());
         force.setSubFaction(request.getSubFaction());
         force.setDetachment(request.getDetachment());
         force.setSupplyLimit(request.getSupplyLimit() != null ? request.getSupplyLimit() : 0);
-        force.setSupplyUsed(request.getSupplyUsed() != null ? request.getSupplyUsed() : 0);
         force.setRequisitionPoints(request.getRequisitionPoints() != null ? request.getRequisitionPoints() : 5);
-        force.setBattlesWon(request.getBattlesWon() != null ? request.getBattlesWon() : 0);
-        force.setBattlesLost(request.getBattlesLost() != null ? request.getBattlesLost() : 0);
-        force.setBattlefieldRole(request.getBattlefieldRole());
         force.setNotes(request.getNotes());
         
         Force savedForce = forceRepository.save(force);
@@ -74,62 +71,68 @@ public class ForceService {
             "Force created with ID: " + savedForce.getId() + " for club: " + request.getClubId());
         logger.info("Force created successfully with ID: {}", savedForce.getId());
         
-        return savedForce;
+        return toForceResponse(savedForce);
     }
     
     /**
-     * Get all forces for a club
+     * Get all forces for a club with player names
      */
-    public List<Force> getForcesByClubId(Long clubId) {
+    public List<ForceResponse> getForcesByClubId(Long clubId) {
         logger.debug("Fetching forces for club: {}", clubId);
         List<Force> forces = forceRepository.findByClubIdAndDeletedTimestampIsNull(clubId);
         logger.info("Retrieved {} forces for club: {}", forces.size(), clubId);
-        return forces;
+        return forces.stream()
+            .map(this::toForceResponse)
+            .collect(Collectors.toList());
     }
     
     /**
-     * Get all forces for a crusade
+     * Get all forces for a user with player names
      */
-    public List<Force> getForcesByCrusadeId(Long crusadeId) {
-        logger.debug("Fetching forces for crusade: {}", crusadeId);
-        List<Force> forces = forceRepository.findByCrusadeIdAndDeletedTimestampIsNull(crusadeId);
-        logger.info("Retrieved {} forces for crusade: {}", forces.size(), crusadeId);
-        return forces;
-    }
-    
-    /**
-     * Get all forces for a user
-     */
-    public List<Force> getForcesByUserId(Long userId) {
+    public List<ForceResponse> getForcesByUserId(Long userId) {
         logger.debug("Fetching forces for user: {}", userId);
         List<Force> forces = forceRepository.findByUserIdAndDeletedTimestampIsNull(userId);
         logger.info("Retrieved {} forces for user: {}", forces.size(), userId);
-        return forces;
+        return forces.stream()
+            .map(this::toForceResponse)
+            .collect(Collectors.toList());
     }
     
     /**
-     * Get a force by ID
+     * Get a force by ID with player name
      */
-    public Optional<Force> getForceById(Long id) {
+    public Optional<ForceResponse> getForceById(Long id) {
         logger.debug("Fetching force: {}", id);
-        return forceRepository.findByIdAndDeletedTimestampIsNull(id);
+        return forceRepository.findByIdAndDeletedTimestampIsNull(id)
+            .map(this::toForceResponse);
     }
     
     /**
-     * Get all forces
+     * Get all forces with player names
      */
-    public List<Force> getAllForces() {
+    public List<ForceResponse> getAllForces() {
         logger.debug("Fetching all forces");
         List<Force> forces = forceRepository.findAllNonDeleted();
         logger.info("Retrieved {} total forces", forces.size());
-        return forces;
+        return forces.stream()
+            .map(this::toForceResponse)
+            .collect(Collectors.toList());
+    }
+    
+    /**
+     * Convert Force entity to ForceResponse with player name
+     */
+    private ForceResponse toForceResponse(Force force) {
+        User user = userRepository.findById(force.getUserId())
+            .orElse(null);
+        return new ForceResponse(force, user);
     }
     
     /**
      * Update a force
      */
     @Transactional
-    public Force updateForce(Long id, CreateForceRequest request, String googleUserId) {
+    public ForceResponse updateForce(Long id, CreateForceRequest request, String googleUserId) {
         logger.info("Updating force: {}", id);
         
         Force force = forceRepository.findByIdAndDeletedTimestampIsNull(id)
@@ -161,26 +164,11 @@ public class ForceService {
         if (request.getSupplyLimit() != null) {
             force.setSupplyLimit(request.getSupplyLimit());
         }
-        if (request.getSupplyUsed() != null) {
-            force.setSupplyUsed(request.getSupplyUsed());
-        }
         if (request.getRequisitionPoints() != null) {
             force.setRequisitionPoints(request.getRequisitionPoints());
         }
-        if (request.getBattlesWon() != null) {
-            force.setBattlesWon(request.getBattlesWon());
-        }
-        if (request.getBattlesLost() != null) {
-            force.setBattlesLost(request.getBattlesLost());
-        }
-        if (request.getBattlefieldRole() != null) {
-            force.setBattlefieldRole(request.getBattlefieldRole());
-        }
         if (request.getNotes() != null) {
             force.setNotes(request.getNotes());
-        }
-        if (request.getCrusadeId() != null) {
-            force.setCrusadeId(request.getCrusadeId());
         }
         
         Force updatedForce = forceRepository.save(force);
@@ -188,7 +176,7 @@ public class ForceService {
             "Force updated: " + id);
         logger.info("Force updated successfully: {}", id);
         
-        return updatedForce;
+        return toForceResponse(updatedForce);
     }
     
     /**

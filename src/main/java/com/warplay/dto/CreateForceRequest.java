@@ -2,17 +2,12 @@ package com.warplay.dto;
 
 public class CreateForceRequest {
     private Long clubId;
-    private Long crusadeId;
     private String name;
     private String faction;
     private String subFaction;
     private String detachment;
     private Integer supplyLimit;
-    private Integer supplyUsed;
     private Integer requisitionPoints;
-    private Integer battlesWon;
-    private Integer battlesLost;
-    private String battlefieldRole;
     private String notes;
     
     // Constructors
@@ -26,14 +21,6 @@ public class CreateForceRequest {
     
     public void setClubId(Long clubId) {
         this.clubId = clubId;
-    }
-    
-    public Long getCrusadeId() {
-        return crusadeId;
-    }
-    
-    public void setCrusadeId(Long crusadeId) {
-        this.crusadeId = crusadeId;
     }
     
     public String getName() {
@@ -76,44 +63,12 @@ public class CreateForceRequest {
         this.supplyLimit = supplyLimit;
     }
     
-    public Integer getSupplyUsed() {
-        return supplyUsed;
-    }
-    
-    public void setSupplyUsed(Integer supplyUsed) {
-        this.supplyUsed = supplyUsed;
-    }
-    
     public Integer getRequisitionPoints() {
         return requisitionPoints;
     }
     
     public void setRequisitionPoints(Integer requisitionPoints) {
         this.requisitionPoints = requisitionPoints;
-    }
-    
-    public Integer getBattlesWon() {
-        return battlesWon;
-    }
-    
-    public void setBattlesWon(Integer battlesWon) {
-        this.battlesWon = battlesWon;
-    }
-    
-    public Integer getBattlesLost() {
-        return battlesLost;
-    }
-    
-    public void setBattlesLost(Integer battlesLost) {
-        this.battlesLost = battlesLost;
-    }
-    
-    public String getBattlefieldRole() {
-        return battlefieldRole;
-    }
-    
-    public void setBattlefieldRole(String battlefieldRole) {
-        this.battlefieldRole = battlefieldRole;
     }
     
     public String getNotes() {

@@ -73,22 +73,6 @@ public class ForceController {
     }
     
     /**
-     * Get all forces for a crusade
-     */
-    @GetMapping("/crusade/{crusadeId}")
-    public ResponseEntity<?> getForcesByCrusadeId(@PathVariable Long crusadeId) {
-        try {
-            logger.debug("API request to fetch forces for crusade: {}", crusadeId);
-            List<Force> forces = forceService.getForcesByCrusadeId(crusadeId);
-            return ResponseEntity.ok(forces);
-        } catch (Exception e) {
-            logger.error("Error fetching forces for crusade {}: {}", crusadeId, e.getMessage(), e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(Map.of("message", "Failed to fetch forces: " + e.getMessage()));
-        }
-    }
-    
-    /**
      * Get all forces for a user
      */
     @GetMapping("/user/{userId}")
