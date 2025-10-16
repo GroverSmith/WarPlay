@@ -38,7 +38,7 @@ public class Force {
     @Column(name = "notes", columnDefinition = "TEXT")
     private String notes;
     
-    @Column(name = "logo_url", length = 500)
+    @Column(name = "logo_url", columnDefinition = "TEXT")
     private String logoUrl;
     
     @Column(name = "created_timestamp", nullable = false, updatable = false)
