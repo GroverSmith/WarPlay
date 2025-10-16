@@ -11,7 +11,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -67,6 +66,7 @@ public class ForceService {
         force.setSupplyLimit(request.getSupplyLimit() != null ? request.getSupplyLimit() : 0);
         force.setRequisitionPoints(request.getRequisitionPoints() != null ? request.getRequisitionPoints() : 5);
         force.setNotes(request.getNotes());
+        force.setImageUrl(request.getImageUrl());
         
         Force savedForce = forceRepository.save(force);
         loggingService.logDatabaseOperation("forces", "INSERT", true, 
@@ -134,7 +134,7 @@ public class ForceService {
      * Update a force
      */
     @Transactional
-    public ForceResponse updateForce(Long id, CreateForceRequest request, String googleUserId, MultipartFile logo) {
+    public ForceResponse updateForce(Long id, CreateForceRequest request, String googleUserId) {
         logger.info("Updating force: {}", id);
         
         Force force = forceRepository.findByIdAndDeletedTimestampIsNull(id)
@@ -173,16 +173,10 @@ public class ForceService {
             force.setNotes(request.getNotes());
         }
         
-        // Handle logo upload
-        if (logo != null && !logo.isEmpty()) {
-            try {
-                String logoUrl = fileUploadService.uploadFile(logo, "force-logos");
-                force.setLogoUrl(logoUrl);
-                logger.info("Logo uploaded for force {}: {}", id, logoUrl);
-            } catch (Exception e) {
-                logger.error("Failed to upload logo for force {}: {}", id, e.getMessage());
-                throw new RuntimeException("Failed to upload logo: " + e.getMessage());
-            }
+        // Handle force image URL if provided
+        if (request.getImageUrl() != null) {
+            force.setImageUrl(request.getImageUrl());
+            logger.info("Force image updated for force {}: {}", id, request.getImageUrl());
         }
         
         Force updatedForce = forceRepository.save(force);

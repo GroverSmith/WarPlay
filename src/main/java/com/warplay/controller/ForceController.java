@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Map;
@@ -128,11 +127,7 @@ public class ForceController {
     @PutMapping("/{id}")
     public ResponseEntity<?> updateForce(
             @PathVariable Long id,
-            @RequestParam(value = "name", required = false) String name,
-            @RequestParam(value = "faction", required = false) String faction,
-            @RequestParam(value = "detachment", required = false) String detachment,
-            @RequestParam(value = "notes", required = false) String notes,
-            @RequestParam(value = "logo", required = false) MultipartFile logo,
+            @RequestBody CreateForceRequest request,
             @RequestHeader(value = "Authorization", required = false) String authHeader) {
         
         try {
@@ -146,14 +141,7 @@ public class ForceController {
                     .body(Map.of("message", "Authentication required"));
             }
             
-            // Create a request object with the form data
-            CreateForceRequest request = new CreateForceRequest();
-            request.setName(name);
-            request.setFaction(faction);
-            request.setDetachment(detachment);
-            request.setNotes(notes);
-            
-            ForceResponse force = forceService.updateForce(id, request, googleUserId, logo);
+            ForceResponse force = forceService.updateForce(id, request, googleUserId);
             return ResponseEntity.ok(force);
             
         } catch (RuntimeException e) {
