@@ -6,7 +6,6 @@ import com.warplay.entity.Force;
 import com.warplay.entity.User;
 import com.warplay.repository.ForceRepository;
 import com.warplay.repository.UserRepository;
-import com.warplay.service.FileUploadService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,8 +32,6 @@ public class ForceService {
     @Autowired
     private LoggingService loggingService;
     
-    @Autowired
-    private FileUploadService fileUploadService;
     
     /**
      * Create a new force
