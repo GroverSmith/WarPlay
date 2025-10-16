@@ -38,6 +38,9 @@ public class Force {
     @Column(name = "notes", columnDefinition = "TEXT")
     private String notes;
     
+    @Column(name = "logo_url", length = 500)
+    private String logoUrl;
+    
     @Column(name = "created_timestamp", nullable = false, updatable = false)
     private LocalDateTime createdTimestamp;
     
@@ -141,6 +144,14 @@ public class Force {
     
     public void setNotes(String notes) {
         this.notes = notes;
+    }
+    
+    public String getLogoUrl() {
+        return logoUrl;
+    }
+    
+    public void setLogoUrl(String logoUrl) {
+        this.logoUrl = logoUrl;
     }
     
     public LocalDateTime getCreatedTimestamp() {

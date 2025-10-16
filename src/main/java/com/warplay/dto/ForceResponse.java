@@ -17,6 +17,7 @@ public class ForceResponse {
     private Integer supplyLimit;
     private Integer requisitionPoints;
     private String notes;
+    private String logoUrl;
     private LocalDateTime createdTimestamp;
     private LocalDateTime updatedTimestamp;
     
@@ -32,6 +33,7 @@ public class ForceResponse {
         this.supplyLimit = force.getSupplyLimit();
         this.requisitionPoints = force.getRequisitionPoints();
         this.notes = force.getNotes();
+        this.logoUrl = force.getLogoUrl();
         this.createdTimestamp = force.getCreatedTimestamp();
         this.updatedTimestamp = force.getUpdatedTimestamp();
     }
@@ -129,6 +131,14 @@ public class ForceResponse {
     
     public void setNotes(String notes) {
         this.notes = notes;
+    }
+    
+    public String getLogoUrl() {
+        return logoUrl;
+    }
+    
+    public void setLogoUrl(String logoUrl) {
+        this.logoUrl = logoUrl;
     }
     
     public LocalDateTime getCreatedTimestamp() {
