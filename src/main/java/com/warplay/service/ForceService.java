@@ -31,6 +31,7 @@ public class ForceService {
     @Autowired
     private LoggingService loggingService;
     
+    
     /**
      * Create a new force
      */
@@ -65,6 +66,7 @@ public class ForceService {
         force.setSupplyLimit(request.getSupplyLimit() != null ? request.getSupplyLimit() : 0);
         force.setRequisitionPoints(request.getRequisitionPoints() != null ? request.getRequisitionPoints() : 5);
         force.setNotes(request.getNotes());
+        force.setImageUrl(request.getImageUrl());
         
         Force savedForce = forceRepository.save(force);
         loggingService.logDatabaseOperation("forces", "INSERT", true, 
@@ -169,6 +171,12 @@ public class ForceService {
         }
         if (request.getNotes() != null) {
             force.setNotes(request.getNotes());
+        }
+        
+        // Handle force image URL if provided
+        if (request.getImageUrl() != null) {
+            force.setImageUrl(request.getImageUrl());
+            logger.info("Force image updated for force {}: {}", id, request.getImageUrl());
         }
         
         Force updatedForce = forceRepository.save(force);

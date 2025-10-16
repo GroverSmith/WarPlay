@@ -9,6 +9,7 @@ public class CreateForceRequest {
     private Integer supplyLimit;
     private Integer requisitionPoints;
     private String notes;
+    private String imageUrl;
     
     // Constructors
     public CreateForceRequest() {
@@ -77,6 +78,14 @@ public class CreateForceRequest {
     
     public void setNotes(String notes) {
         this.notes = notes;
+    }
+    
+    public String getImageUrl() {
+        return imageUrl;
+    }
+    
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 }
 

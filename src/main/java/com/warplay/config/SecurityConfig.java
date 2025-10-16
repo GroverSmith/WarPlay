@@ -43,6 +43,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/crusades/search").permitAll()
                 
                 // Public read-only force endpoints (GET only)
+                .requestMatchers("/api/forces/{id}").permitAll()
                 .requestMatchers("/api/forces/club/{clubId}").permitAll()
                 .requestMatchers("/api/forces/user/{userId}").permitAll()
                 
