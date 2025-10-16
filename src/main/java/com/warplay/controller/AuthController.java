@@ -94,10 +94,11 @@ public class AuthController {
 
                 return ResponseEntity.ok().body(Map.of(
                         "message", "User authenticated successfully",
+                        "id", savedUser.getId(), // Return database ID
                         "email", email,
                         "name", name,
                         "googleId", googleId,
-                        "profilePictureUrl", savedUser.getProfilePictureUrl() != null ? savedUser.getProfilePictureUrl() : ""
+                        "profilePictureUrl", savedUser.getProfilePictureUrl() != null ? savedUser.getProfilePictureUrl() : pictureUrl
                 ));
             } else {
                 logger.error("invalid ID token:{} ", idTokenString);
