@@ -41,9 +41,9 @@ public class UserClubController {
     private UserService userService;
 
     /**
-     * Join a club using authenticated user from Google OAuth
+     * Join a club using authenticated user from JWT session token
      * POST /api/user-clubs/join
-     * Authorization: Bearer <google-token>
+     * Authorization: Bearer <jwt-session-token>
      * Body: { "clubId": 5 }
      */
     @PostMapping("/join")
@@ -51,17 +51,14 @@ public class UserClubController {
             @RequestBody JoinClubRequest request,
             @AuthenticationPrincipal OAuth2User principal) {
         try {
-            // Extract user email from Google OAuth token
-            String email = principal.getAttribute("email");
-
-            if (email == null) {
+            // Get user ID from JWT token
+            Long userId = principal.getAttribute("userId");
+            
+            if (userId == null) {
                 return ResponseEntity
                         .status(HttpStatus.UNAUTHORIZED)
-                        .body(new ClubMembershipResponse("User email not found in token"));
+                        .body(new ClubMembershipResponse("User ID not found in token"));
             }
-
-            // Find or create user by email
-            Long userId = userService.getUserIdByEmail(email);
 
             // Join the club
             UserClub response = userClubService.joinClub(userId, request.getClubId());
@@ -357,14 +354,15 @@ public class UserClubController {
             @PathVariable Long clubId,
             @AuthenticationPrincipal OAuth2User principal) {
         try {
-            String email = principal.getAttribute("email");
-            if (email == null) {
+            // Get user ID from JWT token
+            Long userId = principal.getAttribute("userId");
+            
+            if (userId == null) {
                 return ResponseEntity
                         .status(HttpStatus.UNAUTHORIZED)
-                        .body(new ClubMembershipResponse("User email not found in token"));
+                        .body(new ClubMembershipResponse("User ID not found in token"));
             }
-
-            Long userId = userService.getUserIdByEmail(email);
+            
             logger.debug("Checking membership: user {} - club {}", userId, clubId);
 
             boolean isMember = userClubService.isUserMemberOfClub(userId, clubId);
