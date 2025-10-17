@@ -23,7 +23,7 @@ public class Force {
     @Column(name = "faction", nullable = false, length = 100)
     private String faction;
     
-    @Column(name = "force_type", nullable = false, length = 20)
+    @Column(name = "force_type", nullable = true, length = 20)
     private String forceType;
     
     @Column(name = "sub_faction", length = 100)

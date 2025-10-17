@@ -29,7 +29,7 @@ public class ForceResponse {
         this.userId = force.getUserId();
         this.name = force.getName();
         this.faction = force.getFaction();
-        this.forceType = force.getForceType();
+        this.forceType = force.getForceType() != null ? force.getForceType() : "basic";
         this.subFaction = force.getSubFaction();
         this.detachment = force.getDetachment();
         this.supplyLimit = force.getSupplyLimit();
