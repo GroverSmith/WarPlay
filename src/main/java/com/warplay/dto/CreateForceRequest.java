@@ -4,6 +4,7 @@ public class CreateForceRequest {
     private Long clubId;
     private String name;
     private String faction;
+    private String forceType;
     private String subFaction;
     private String detachment;
     private Integer supplyLimit;
@@ -38,6 +39,14 @@ public class CreateForceRequest {
     
     public void setFaction(String faction) {
         this.faction = faction;
+    }
+    
+    public String getForceType() {
+        return forceType;
+    }
+    
+    public void setForceType(String forceType) {
+        this.forceType = forceType;
     }
     
     public String getSubFaction() {

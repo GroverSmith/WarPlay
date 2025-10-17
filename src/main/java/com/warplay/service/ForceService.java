@@ -61,6 +61,7 @@ public class ForceService {
         force.setUserId(user.getId());
         force.setName(request.getName());
         force.setFaction(request.getFaction());
+        force.setForceType(request.getForceType() != null ? request.getForceType() : "basic");
         force.setSubFaction(request.getSubFaction());
         force.setDetachment(request.getDetachment());
         force.setSupplyLimit(request.getSupplyLimit() != null ? request.getSupplyLimit() : 0);
@@ -156,6 +157,9 @@ public class ForceService {
         }
         if (request.getFaction() != null) {
             force.setFaction(request.getFaction());
+        }
+        if (request.getForceType() != null) {
+            force.setForceType(request.getForceType());
         }
         if (request.getSubFaction() != null) {
             force.setSubFaction(request.getSubFaction());
