@@ -12,6 +12,7 @@ public class ForceResponse {
     private String playerName;
     private String name;
     private String faction;
+    private String forceType;
     private String subFaction;
     private String detachment;
     private Integer supplyLimit;
@@ -28,6 +29,7 @@ public class ForceResponse {
         this.userId = force.getUserId();
         this.name = force.getName();
         this.faction = force.getFaction();
+        this.forceType = force.getForceType() != null ? force.getForceType() : "basic";
         this.subFaction = force.getSubFaction();
         this.detachment = force.getDetachment();
         this.supplyLimit = force.getSupplyLimit();
@@ -91,6 +93,14 @@ public class ForceResponse {
     
     public void setFaction(String faction) {
         this.faction = faction;
+    }
+    
+    public String getForceType() {
+        return forceType;
+    }
+    
+    public void setForceType(String forceType) {
+        this.forceType = forceType;
     }
     
     public String getSubFaction() {

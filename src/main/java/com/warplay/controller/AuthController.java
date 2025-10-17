@@ -7,6 +7,7 @@ import com.google.api.client.json.gson.GsonFactory;
 
 import com.warplay.entity.User;
 import com.warplay.repository.UserRepository;
+import com.warplay.service.SessionTokenService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,9 @@ public class AuthController {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private SessionTokenService sessionTokenService;
 
     @PostMapping("/google-signin")
     public ResponseEntity<?> googleSignIn(@RequestBody Map<String, String> payload) {
@@ -88,12 +92,13 @@ public class AuthController {
                 User savedUser = userRepository.save(user);
 
                 logger.info("saved user: {}", savedUser);
-                // TODO: Return user data or session token
-
-
+                
+                // Create a proper JWT session token for the user
+                String sessionToken = sessionTokenService.generateSessionToken(savedUser);
 
                 return ResponseEntity.ok().body(Map.of(
                         "message", "User authenticated successfully",
+                        "sessionToken", sessionToken,
                         "id", savedUser.getId() != null ? savedUser.getId() : 0L, // Return database ID, handle null
                         "email", email != null ? email : "",
                         "name", name != null ? name : "",

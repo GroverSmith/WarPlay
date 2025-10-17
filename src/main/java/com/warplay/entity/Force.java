@@ -23,6 +23,9 @@ public class Force {
     @Column(name = "faction", nullable = false, length = 100)
     private String faction;
     
+    @Column(name = "force_type", nullable = true, length = 20)
+    private String forceType;
+    
     @Column(name = "sub_faction", length = 100)
     private String subFaction;
     
@@ -104,6 +107,14 @@ public class Force {
     
     public void setFaction(String faction) {
         this.faction = faction;
+    }
+    
+    public String getForceType() {
+        return forceType;
+    }
+    
+    public void setForceType(String forceType) {
+        this.forceType = forceType;
     }
     
     public String getSubFaction() {
