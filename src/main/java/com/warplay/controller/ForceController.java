@@ -3,6 +3,7 @@ package com.warplay.controller;
 import com.warplay.dto.CreateForceRequest;
 import com.warplay.dto.ForceResponse;
 import com.warplay.service.ForceService;
+import com.warplay.service.JwtService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/forces")
@@ -22,6 +24,9 @@ public class ForceController {
     
     @Autowired
     private ForceService forceService;
+    
+    @Autowired
+    private JwtService jwtService;
     
     /**
      * Create a new force
@@ -189,11 +194,19 @@ public class ForceController {
     }
     
     /**
-     * Extract user ID from Authorization header
+     * Extract Google user ID from Authorization header
      */
     private String extractUserIdFromAuth(String authHeader) {
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            return authHeader.substring(7);
+            String token = authHeader.substring(7);
+            try {
+                Optional<Map<String, Object>> userInfo = jwtService.validateToken(token);
+                if (userInfo.isPresent()) {
+                    return (String) userInfo.get().get("googleId");
+                }
+            } catch (Exception e) {
+                logger.warn("Failed to extract user ID from token: {}", e.getMessage());
+            }
         }
         return null;
     }
