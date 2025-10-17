@@ -3,7 +3,6 @@ package com.warplay.service;
 import com.warplay.entity.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,38 +59,27 @@ public class JwtService {
      */
     public String generateToken(Map<String, Object> extraClaims, User user) {
         try {
-            Map<String, Object> claims = new HashMap<>(extraClaims);
-            claims.put("userId", user.getId());
-            claims.put("email", user.getEmail());
-            claims.put("name", user.getName());
-            claims.put("googleId", user.getGoogleId());
+            Date now = new Date();
+            Date expiryDate = new Date(now.getTime() + jwtExpiration);
             
-            // Add roles/permissions if needed in the future
-            claims.put("roles", "USER"); // For now, all users have USER role
-            
-            return buildToken(claims, user.getEmail(), jwtExpiration);
+            return Jwts.builder()
+                    .claims(extraClaims)
+                    .subject(user.getEmail())
+                    .issuedAt(now)
+                    .expiration(expiryDate)
+                    .issuer("warplay-api")
+                    .audience("warplay-client")
+                    .claim("userId", user.getId())
+                    .claim("email", user.getEmail())
+                    .claim("name", user.getName())
+                    .claim("googleId", user.getGoogleId())
+                    .claim("roles", "USER")
+                    .signWith(getSignInKey())
+                    .compact();
         } catch (Exception e) {
             logger.error("Error generating JWT token for user: {}", user.getEmail(), e);
             throw new RuntimeException("Failed to generate JWT token", e);
         }
-    }
-
-    /**
-     * Build a JWT token with the given claims
-     */
-    private String buildToken(Map<String, Object> extraClaims, String subject, long expiration) {
-        Date now = new Date();
-        Date expiryDate = new Date(now.getTime() + expiration);
-        
-        return Jwts.builder()
-                .setClaims(extraClaims)
-                .setSubject(subject)
-                .setIssuedAt(now)
-                .setExpiration(expiryDate)
-                .setIssuer("warplay-api")
-                .setAudience("warplay-client")
-                .signWith(getSignInKey(), SignatureAlgorithm.HS256)
-                .compact();
     }
 
     /**
@@ -121,8 +109,8 @@ public class JwtService {
      * Extract all claims from JWT token
      */
     public Claims extractAllClaims(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(getSignInKey())
+        return Jwts.parser()
+                .verifyWith(getSignInKey())
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
