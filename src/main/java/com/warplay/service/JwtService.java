@@ -121,10 +121,11 @@ public class JwtService {
      * Extract all claims from JWT token
      */
     public Claims extractAllClaims(String token) {
-        return Jwts.parser()
+        return Jwts.parserBuilder()
                 .setSigningKey(getSignInKey())
-                .parseClaimsJws(token)
-                .getBody();
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
     }
 
     /**
