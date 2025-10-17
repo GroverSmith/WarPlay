@@ -68,7 +68,7 @@ public class JwtService {
                     .issuedAt(now)
                     .expiration(expiryDate)
                     .issuer("warplay-api")
-                    .audience("warplay-client")
+                    .claim("aud", "warplay-client")
                     .claim("userId", user.getId())
                     .claim("email", user.getEmail())
                     .claim("name", user.getName())
