@@ -35,7 +35,19 @@ public class SessionTokenService {
             // Validate JWT token
             Optional<Map<String, Object>> userInfo = jwtService.validateToken(sessionToken);
             if (userInfo.isPresent()) {
-                Long userId = (Long) userInfo.get().get("userId");
+                Object userIdObj = userInfo.get().get("userId");
+                Long userId;
+                
+                // Handle both Integer and Long userId types
+                if (userIdObj instanceof Integer) {
+                    userId = ((Integer) userIdObj).longValue();
+                } else if (userIdObj instanceof Long) {
+                    userId = (Long) userIdObj;
+                } else {
+                    logger.debug("Invalid userId type in JWT token: {}", userIdObj.getClass());
+                    return Optional.empty();
+                }
+                
                 Optional<User> user = userRepository.findById(userId);
                 if (user.isPresent()) {
                     logger.debug("Valid JWT session token for user: {}", user.get().getEmail());
