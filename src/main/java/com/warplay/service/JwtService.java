@@ -40,6 +40,7 @@ public class JwtService {
             throw new IllegalStateException("JWT_SECRET must be at least 32 characters long for security");
         }
         logger.info("JWT service initialized with secret key length: {}", secretKey.length());
+        logger.info("JWT secret key starts with: {}", secretKey.substring(0, Math.min(10, secretKey.length())));
     }
 
     /**
@@ -158,7 +159,9 @@ public class JwtService {
      */
     public Optional<Map<String, Object>> validateToken(String token) {
         try {
+            logger.debug("Validating JWT token: {}", token.substring(0, Math.min(50, token.length())) + "...");
             Claims claims = extractAllClaims(token);
+            logger.debug("JWT token parsed successfully, claims: {}", claims);
             
             // Check if token is expired
             if (isTokenExpired(token)) {
@@ -174,9 +177,10 @@ public class JwtService {
             userInfo.put("googleId", claims.get("googleId"));
             userInfo.put("roles", claims.get("roles"));
             
+            logger.debug("JWT token validation successful for user: {}", claims.get("email"));
             return Optional.of(userInfo);
         } catch (Exception e) {
-            logger.debug("Token validation failed: {}", e.getMessage());
+            logger.warn("JWT token validation failed: {}", e.getMessage(), e);
             return Optional.empty();
         }
     }

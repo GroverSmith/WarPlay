@@ -7,6 +7,8 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -23,6 +25,7 @@ import java.util.Optional;
 
 @Component
 public class GoogleAuthFilter extends OncePerRequestFilter {
+    private static final Logger logger = LoggerFactory.getLogger(GoogleAuthFilter.class);
 
     @Autowired
     private UserRepository userRepository;
@@ -39,11 +42,14 @@ public class GoogleAuthFilter extends OncePerRequestFilter {
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String token = authHeader.substring(7); // Remove "Bearer " prefix
             
+            logger.debug("Received Bearer token: {}", token.substring(0, Math.min(50, token.length())) + "...");
+            
             // Validate JWT session token
             Optional<User> userOpt = sessionTokenService.validateSessionToken(token);
             
             if (userOpt.isPresent()) {
                 User user = userOpt.get();
+                logger.debug("JWT token validated successfully for user: {}", user.getEmail());
                 
                 Map<String, Object> attributes = new HashMap<>();
                 attributes.put("sub", user.getGoogleId()); // Use Google ID as subject for consistency
@@ -68,7 +74,12 @@ public class GoogleAuthFilter extends OncePerRequestFilter {
                 
                 // Set authentication in security context
                 SecurityContextHolder.getContext().setAuthentication(authToken);
+                logger.debug("Authentication set in security context for user: {}", user.getEmail());
+            } else {
+                logger.warn("JWT token validation failed for token: {}", token.substring(0, Math.min(50, token.length())) + "...");
             }
+        } else {
+            logger.debug("No Bearer token found in request");
         }
         
         filterChain.doFilter(request, response);
