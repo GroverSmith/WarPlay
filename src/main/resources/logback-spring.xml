@@ -58,14 +58,14 @@
         <logger name="com.warplay" level="INFO"/>
 
         <!-- Database logging -->
-        <logger name="org.hibernate.SQL" level="DEBUG"/>
-        <logger name="org.hibernate.type.descriptor.sql.BasicBinder" level="TRACE"/>
+        <logger name="org.hibernate.SQL" level="INFO"/>
+        <logger name="org.hibernate.type.descriptor.sql.BasicBinder" level="INFO"/>
 
         <!-- Spring Security logging -->
-        <logger name="org.springframework.security" level="DEBUG"/>
+        <logger name="org.springframework.security" level="INFO"/>
 
         <!-- HTTP request logging -->
-        <logger name="org.springframework.web" level="DEBUG"/>
+        <logger name="org.springframework.web" level="INFO"/>
 
         <!-- Reduce noise from common frameworks -->
         <logger name="org.springframework" level="WARN"/>
@@ -75,14 +75,14 @@
 
     <!-- Development profile - optimized for IntelliJ -->
     <springProfile name="dev,default">
-        <root level="DEBUG">
+        <root level="INFO">
             <appender-ref ref="CONSOLE_QUIET"/>
             <appender-ref ref="FILE"/>
         </root>
 
         <logger name="com.warplay" level="DEBUG"/>
-        <logger name="org.hibernate.SQL" level="DEBUG"/>
-        <logger name="org.springframework.security" level="DEBUG"/>
+        <logger name="org.hibernate.SQL" level="INFO"/>
+        <logger name="org.springframework.security" level="INFO"/>
         <logger name="org.springframework" level="WARN"/>
         <logger name="org.hibernate" level="WARN"/>
         <logger name="com.zaxxer.hikari" level="WARN"/>
