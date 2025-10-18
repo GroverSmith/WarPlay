@@ -36,6 +36,9 @@ public class ForceService {
     @Autowired
     private LoggingService loggingService;
     
+    @Autowired
+    private UserClubService userClubService;
+    
     
     /**
      * Create a new force
@@ -51,6 +54,12 @@ public class ForceService {
         // Validate required fields
         if (request.getClubId() == null) {
             throw new IllegalArgumentException("Club ID is required");
+        }
+        
+        // Validate that the user is a member of the club
+        if (!userClubService.isUserMemberOfClub(user.getId(), request.getClubId())) {
+            logger.warn("Unauthorized force creation attempt: User {} is not a member of club {}", user.getId(), request.getClubId());
+            throw new IllegalArgumentException("User is not a member of this club. Only club members can create forces.");
         }
         
         if (request.getName() == null || request.getName().trim().isEmpty()) {
