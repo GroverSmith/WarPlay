@@ -4,8 +4,10 @@ import com.warplay.dto.CreateForceRequest;
 import com.warplay.dto.ForceResponse;
 import com.warplay.entity.Force;
 import com.warplay.entity.User;
+import com.warplay.entity.Club;
 import com.warplay.repository.ForceRepository;
 import com.warplay.repository.UserRepository;
+import com.warplay.repository.ClubRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +29,9 @@ public class ForceService {
     
     @Autowired
     private UserRepository userRepository;
+    
+    @Autowired
+    private ClubRepository clubRepository;
     
     @Autowired
     private LoggingService loggingService;
@@ -123,12 +128,14 @@ public class ForceService {
     }
     
     /**
-     * Convert Force entity to ForceResponse with player name
+     * Convert Force entity to ForceResponse with player name and club name
      */
     private ForceResponse toForceResponse(Force force) {
         User user = userRepository.findById(force.getUserId())
             .orElse(null);
-        return new ForceResponse(force, user);
+        Club club = clubRepository.findById(force.getClubId())
+            .orElse(null);
+        return new ForceResponse(force, user, club);
     }
     
     /**
