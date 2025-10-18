@@ -4,8 +4,10 @@ import com.warplay.dto.CreateForceRequest;
 import com.warplay.dto.ForceResponse;
 import com.warplay.entity.Force;
 import com.warplay.entity.User;
+import com.warplay.entity.Club;
 import com.warplay.repository.ForceRepository;
 import com.warplay.repository.UserRepository;
+import com.warplay.repository.ClubRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +31,13 @@ public class ForceService {
     private UserRepository userRepository;
     
     @Autowired
+    private ClubRepository clubRepository;
+    
+    @Autowired
     private LoggingService loggingService;
+    
+    @Autowired
+    private UserClubService userClubService;
     
     
     /**
@@ -46,6 +54,12 @@ public class ForceService {
         // Validate required fields
         if (request.getClubId() == null) {
             throw new IllegalArgumentException("Club ID is required");
+        }
+        
+        // Validate that the user is a member of the club
+        if (!userClubService.isUserMemberOfClub(user.getId(), request.getClubId())) {
+            logger.warn("Unauthorized force creation attempt: User {} is not a member of club {}", user.getId(), request.getClubId());
+            throw new IllegalArgumentException("User is not a member of this club. Only club members can create forces.");
         }
         
         if (request.getName() == null || request.getName().trim().isEmpty()) {
@@ -123,12 +137,14 @@ public class ForceService {
     }
     
     /**
-     * Convert Force entity to ForceResponse with player name
+     * Convert Force entity to ForceResponse with player name and club name
      */
     private ForceResponse toForceResponse(Force force) {
         User user = userRepository.findById(force.getUserId())
             .orElse(null);
-        return new ForceResponse(force, user);
+        Club club = clubRepository.findById(force.getClubId())
+            .orElse(null);
+        return new ForceResponse(force, user, club);
     }
     
     /**

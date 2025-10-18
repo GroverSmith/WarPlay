@@ -66,7 +66,24 @@ public class AuthController {
                     logger.info("found existing user {}", user);
                     user.setName(name); // Update name in case it changed
                     user.setEmail(email); // Update email in case it changed
-                    user.setProfilePictureUrl(pictureUrl);
+                    
+                    // Only update profile picture if:
+                    // 1. User doesn't have a custom profile picture, OR
+                    // 2. Google picture is available and different from current
+                    if (user.getProfilePictureUrl() == null || user.getProfilePictureUrl().isEmpty()) {
+                        user.setProfilePictureUrl(pictureUrl);
+                        logger.info("Updated profile picture from Google token: {}", pictureUrl);
+                    } else if (pictureUrl != null && !pictureUrl.equals(user.getProfilePictureUrl())) {
+                        // Check if current picture is a custom upload (base64 data URL)
+                        if (!user.getProfilePictureUrl().startsWith("data:")) {
+                            // Current picture is not custom, safe to update with Google picture
+                            user.setProfilePictureUrl(pictureUrl);
+                            logger.info("Updated profile picture from Google token: {}", pictureUrl);
+                        } else {
+                            logger.info("Preserving custom profile picture, ignoring Google token picture");
+                        }
+                    }
+                    
                     user.updateLastLogin();
                 } else {
                     // Check if user exists with same email but no Google ID (shouldn't happen with OAuth)
@@ -77,7 +94,21 @@ public class AuthController {
                         user = emailUser.get();
                         user.setGoogleId(googleId);
                         user.setName(name);
-                        user.setProfilePictureUrl(pictureUrl);
+                        
+                        // Only update profile picture if user doesn't have a custom one
+                        if (user.getProfilePictureUrl() == null || user.getProfilePictureUrl().isEmpty()) {
+                            user.setProfilePictureUrl(pictureUrl);
+                            logger.info("Updated profile picture from Google token for linked user: {}", pictureUrl);
+                        } else if (pictureUrl != null && !pictureUrl.equals(user.getProfilePictureUrl())) {
+                            // Check if current picture is a custom upload (base64 data URL)
+                            if (!user.getProfilePictureUrl().startsWith("data:")) {
+                                user.setProfilePictureUrl(pictureUrl);
+                                logger.info("Updated profile picture from Google token for linked user: {}", pictureUrl);
+                            } else {
+                                logger.info("Preserving custom profile picture for linked user, ignoring Google token picture");
+                            }
+                        }
+                        
                         user.updateLastLogin();
                     } else {
                         // Create completely new user
@@ -136,7 +167,21 @@ public class AuthController {
             user = existingUser.get();
             user.setName(request.getName()); // Update name in case it changed
             user.setEmail(request.getEmail()); // Update email in case it changed
-            user.setProfilePictureUrl(request.getProfilePictureUrl());
+            
+            // Only update profile picture if user doesn't have a custom one
+            if (user.getProfilePictureUrl() == null || user.getProfilePictureUrl().isEmpty()) {
+                user.setProfilePictureUrl(request.getProfilePictureUrl());
+                logger.info("Updated profile picture from request: {}", request.getProfilePictureUrl());
+            } else if (request.getProfilePictureUrl() != null && !request.getProfilePictureUrl().equals(user.getProfilePictureUrl())) {
+                // Check if current picture is a custom upload (base64 data URL)
+                if (!user.getProfilePictureUrl().startsWith("data:")) {
+                    user.setProfilePictureUrl(request.getProfilePictureUrl());
+                    logger.info("Updated profile picture from request: {}", request.getProfilePictureUrl());
+                } else {
+                    logger.info("Preserving custom profile picture, ignoring request picture");
+                }
+            }
+            
             user.updateLastLogin();
         } else {
             // Check if user exists with same email but no Google ID (shouldn't happen with OAuth)
@@ -146,7 +191,21 @@ public class AuthController {
                 user = emailUser.get();
                 user.setGoogleId(request.getGoogleId());
                 user.setName(request.getName());
-                user.setProfilePictureUrl(request.getProfilePictureUrl());
+                
+                // Only update profile picture if user doesn't have a custom one
+                if (user.getProfilePictureUrl() == null || user.getProfilePictureUrl().isEmpty()) {
+                    user.setProfilePictureUrl(request.getProfilePictureUrl());
+                    logger.info("Updated profile picture from request for linked user: {}", request.getProfilePictureUrl());
+                } else if (request.getProfilePictureUrl() != null && !request.getProfilePictureUrl().equals(user.getProfilePictureUrl())) {
+                    // Check if current picture is a custom upload (base64 data URL)
+                    if (!user.getProfilePictureUrl().startsWith("data:")) {
+                        user.setProfilePictureUrl(request.getProfilePictureUrl());
+                        logger.info("Updated profile picture from request for linked user: {}", request.getProfilePictureUrl());
+                    } else {
+                        logger.info("Preserving custom profile picture for linked user, ignoring request picture");
+                    }
+                }
+                
                 user.updateLastLogin();
             } else {
                 // Create completely new user

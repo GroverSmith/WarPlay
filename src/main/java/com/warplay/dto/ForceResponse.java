@@ -2,12 +2,14 @@ package com.warplay.dto;
 
 import com.warplay.entity.Force;
 import com.warplay.entity.User;
+import com.warplay.entity.Club;
 
 import java.time.LocalDateTime;
 
 public class ForceResponse {
     private Long id;
     private Long clubId;
+    private String clubName;
     private Long userId;
     private String playerName;
     private String name;
@@ -46,6 +48,12 @@ public class ForceResponse {
         this.playerName = user != null ? user.getName() : null;
     }
     
+    // Constructor from Force, User, and Club
+    public ForceResponse(Force force, User user, Club club) {
+        this(force, user);
+        this.clubName = club != null ? club.getName() : null;
+    }
+    
     // Getters and Setters
     public Long getId() {
         return id;
@@ -61,6 +69,14 @@ public class ForceResponse {
     
     public void setClubId(Long clubId) {
         this.clubId = clubId;
+    }
+    
+    public String getClubName() {
+        return clubName;
+    }
+    
+    public void setClubName(String clubName) {
+        this.clubName = clubName;
     }
     
     public Long getUserId() {
