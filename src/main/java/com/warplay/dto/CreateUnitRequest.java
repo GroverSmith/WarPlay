@@ -182,6 +182,14 @@ public class CreateUnitRequest {
         this.notes = notes;
     }
     
+    public String getNotableHistory() {
+        return notableHistory;
+    }
+    
+    public void setNotableHistory(String notableHistory) {
+        this.notableHistory = notableHistory;
+    }
+    
     public String getMfmVersion() {
         return mfmVersion;
     }
