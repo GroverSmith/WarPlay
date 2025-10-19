@@ -6,7 +6,6 @@ CREATE TABLE IF NOT EXISTS units (
     name VARCHAR(200) NOT NULL,
     data_sheet VARCHAR(200) NOT NULL,
     model_count INTEGER NOT NULL,
-    unit_variant VARCHAR(100),
     unit_type VARCHAR(50),
     points INTEGER,
     crusade_points INTEGER,
@@ -56,7 +55,6 @@ COMMENT ON COLUMN units.user_id IS 'Reference to the user who owns this unit';
 COMMENT ON COLUMN units.name IS 'Display name for the unit';
 COMMENT ON COLUMN units.data_sheet IS 'Official data sheet name from MFM or custom';
 COMMENT ON COLUMN units.model_count IS 'Number of models in this unit';
-COMMENT ON COLUMN units.unit_variant IS 'Specific variant of the unit (if applicable)';
 COMMENT ON COLUMN units.unit_type IS 'Battlefield role (HQ, Troops, Elites, etc.)';
 COMMENT ON COLUMN units.points IS 'Points cost of the unit';
 COMMENT ON COLUMN units.crusade_points IS 'Crusade points cost of the unit';

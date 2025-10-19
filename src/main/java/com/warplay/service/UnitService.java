@@ -81,7 +81,6 @@ public class UnitService {
         unit.setName(request.getName());
         unit.setDataSheet(request.getDataSheet());
         unit.setModelCount(request.getModelCount());
-        unit.setUnitVariant(request.getUnitVariant());
         unit.setUnitType(request.getUnitType());
         unit.setPoints(request.getPoints() != null ? request.getPoints() : 0);
         unit.setCrusadePoints(request.getCrusadePoints() != null ? request.getCrusadePoints() : 0);
@@ -208,9 +207,6 @@ public class UnitService {
         }
         if (request.getModelCount() != null) {
             unit.setModelCount(request.getModelCount());
-        }
-        if (request.getUnitVariant() != null) {
-            unit.setUnitVariant(request.getUnitVariant());
         }
         if (request.getUnitType() != null) {
             unit.setUnitType(request.getUnitType());

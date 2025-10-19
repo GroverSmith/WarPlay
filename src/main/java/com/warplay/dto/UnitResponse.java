@@ -15,7 +15,6 @@ public class UnitResponse {
     private String name;
     private String dataSheet;
     private Integer modelCount;
-    private String unitVariant;
     private String unitType;
     private Integer points;
     private Integer crusadePoints;
@@ -45,7 +44,6 @@ public class UnitResponse {
         this.name = unit.getName();
         this.dataSheet = unit.getDataSheet();
         this.modelCount = unit.getModelCount();
-        this.unitVariant = unit.getUnitVariant();
         this.unitType = unit.getUnitType();
         this.points = unit.getPoints();
         this.crusadePoints = unit.getCrusadePoints();
@@ -145,13 +143,6 @@ public class UnitResponse {
         this.modelCount = modelCount;
     }
     
-    public String getUnitVariant() {
-        return unitVariant;
-    }
-    
-    public void setUnitVariant(String unitVariant) {
-        this.unitVariant = unitVariant;
-    }
     
     public String getUnitType() {
         return unitType;

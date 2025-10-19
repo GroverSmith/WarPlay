@@ -26,8 +26,6 @@ public class Unit {
     @Column(name = "model_count", nullable = false)
     private Integer modelCount;
     
-    @Column(name = "unit_variant", length = 100)
-    private String unitVariant;
     
     @Column(name = "unit_type", length = 50)
     private String unitType;
@@ -156,13 +154,6 @@ public class Unit {
         this.modelCount = modelCount;
     }
     
-    public String getUnitVariant() {
-        return unitVariant;
-    }
-    
-    public void setUnitVariant(String unitVariant) {
-        this.unitVariant = unitVariant;
-    }
     
     public String getUnitType() {
         return unitType;

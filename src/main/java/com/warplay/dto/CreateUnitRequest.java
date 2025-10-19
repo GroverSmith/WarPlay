@@ -5,7 +5,6 @@ public class CreateUnitRequest {
     private String name;
     private String dataSheet;
     private Integer modelCount;
-    private String unitVariant;
     private String unitType;
     private Integer points;
     private Integer crusadePoints;
@@ -62,13 +61,6 @@ public class CreateUnitRequest {
         this.modelCount = modelCount;
     }
     
-    public String getUnitVariant() {
-        return unitVariant;
-    }
-    
-    public void setUnitVariant(String unitVariant) {
-        this.unitVariant = unitVariant;
-    }
     
     public String getUnitType() {
         return unitType;
