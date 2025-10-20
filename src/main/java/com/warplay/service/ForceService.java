@@ -82,6 +82,7 @@ public class ForceService {
         force.setRequisitionPoints(request.getRequisitionPoints() != null ? request.getRequisitionPoints() : 5);
         force.setNotes(request.getNotes());
         force.setImageUrl(request.getImageUrl());
+        force.setMfmVersion(request.getMfmVersion());
         
         Force savedForce = forceRepository.save(force);
         loggingService.logDatabaseOperation("forces", "INSERT", true, 
@@ -197,6 +198,9 @@ public class ForceService {
         if (request.getImageUrl() != null) {
             force.setImageUrl(request.getImageUrl());
             logger.info("Force image updated for force {}: {}", id, request.getImageUrl());
+        }
+        if (request.getMfmVersion() != null) {
+            force.setMfmVersion(request.getMfmVersion());
         }
         
         Force updatedForce = forceRepository.save(force);

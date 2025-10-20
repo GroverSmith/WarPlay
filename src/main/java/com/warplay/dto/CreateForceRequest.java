@@ -11,6 +11,7 @@ public class CreateForceRequest {
     private Integer requisitionPoints;
     private String notes;
     private String imageUrl;
+    private String mfmVersion;
     
     // Constructors
     public CreateForceRequest() {
@@ -95,6 +96,14 @@ public class CreateForceRequest {
     
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
+    }
+    
+    public String getMfmVersion() {
+        return mfmVersion;
+    }
+    
+    public void setMfmVersion(String mfmVersion) {
+        this.mfmVersion = mfmVersion;
     }
 }
 

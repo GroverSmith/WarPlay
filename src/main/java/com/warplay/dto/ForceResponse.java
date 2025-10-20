@@ -21,6 +21,7 @@ public class ForceResponse {
     private Integer requisitionPoints;
     private String notes;
     private String imageUrl;
+    private String mfmVersion;
     private LocalDateTime createdTimestamp;
     private LocalDateTime updatedTimestamp;
     
@@ -38,6 +39,7 @@ public class ForceResponse {
         this.requisitionPoints = force.getRequisitionPoints();
         this.notes = force.getNotes();
         this.imageUrl = force.getImageUrl();
+        this.mfmVersion = force.getMfmVersion();
         this.createdTimestamp = force.getCreatedTimestamp();
         this.updatedTimestamp = force.getUpdatedTimestamp();
     }
@@ -165,6 +167,14 @@ public class ForceResponse {
     
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
+    }
+    
+    public String getMfmVersion() {
+        return mfmVersion;
+    }
+    
+    public void setMfmVersion(String mfmVersion) {
+        this.mfmVersion = mfmVersion;
     }
     
     public LocalDateTime getCreatedTimestamp() {
