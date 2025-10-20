@@ -1,5 +1,6 @@
 # Generate a secure JWT secret for production
 # This script generates a cryptographically secure random string suitable for JWT signing
+# JWT tokens will expire after 30 days (2592000000 milliseconds)
 
 Write-Host "Generating JWT secret for production..." -ForegroundColor Green
 Write-Host ""
