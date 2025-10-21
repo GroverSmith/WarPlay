@@ -2,7 +2,9 @@ package com.warplay.repository;
 
 import com.warplay.entity.MfmFaction;
 import com.warplay.entity.MfmUnit;
+import com.warplay.entity.MfmVersion;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -59,4 +61,11 @@ public interface MfmUnitRepository extends JpaRepository<MfmUnit, Long> {
      */
     @Query("SELECT COUNT(u) > 0 FROM MfmUnit u WHERE u.name = :unitName AND u.faction.name = :factionName AND u.faction.mfmVersion.version = :version")
     boolean existsByNameAndFactionAndVersion(@Param("unitName") String unitName, @Param("factionName") String factionName, @Param("version") String version);
+    
+    /**
+     * Delete units by MFM version
+     */
+    @Modifying
+    @Query("DELETE FROM MfmUnit u WHERE u.faction.mfmVersion = :mfmVersion")
+    void deleteByFactionMfmVersion(@Param("mfmVersion") MfmVersion mfmVersion);
 }

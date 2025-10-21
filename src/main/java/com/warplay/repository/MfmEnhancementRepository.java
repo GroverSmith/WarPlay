@@ -2,7 +2,9 @@ package com.warplay.repository;
 
 import com.warplay.entity.MfmDetachment;
 import com.warplay.entity.MfmEnhancement;
+import com.warplay.entity.MfmVersion;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -71,4 +73,11 @@ public interface MfmEnhancementRepository extends JpaRepository<MfmEnhancement, 
      */
     @Query("SELECT COUNT(e) > 0 FROM MfmEnhancement e WHERE e.name = :enhancementName AND e.detachment.name = :detachmentName AND e.detachment.faction.name = :factionName AND e.detachment.faction.mfmVersion.version = :version")
     boolean existsByNameAndDetachmentAndFactionAndVersion(@Param("enhancementName") String enhancementName, @Param("detachmentName") String detachmentName, @Param("factionName") String factionName, @Param("version") String version);
+    
+    /**
+     * Delete enhancements by MFM version
+     */
+    @Modifying
+    @Query("DELETE FROM MfmEnhancement e WHERE e.detachment.faction.mfmVersion = :mfmVersion")
+    void deleteByDetachmentFactionMfmVersion(@Param("mfmVersion") MfmVersion mfmVersion);
 }
