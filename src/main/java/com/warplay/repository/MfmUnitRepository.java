@@ -21,6 +21,11 @@ public interface MfmUnitRepository extends JpaRepository<MfmUnit, Long> {
     List<MfmUnit> findByFaction(MfmFaction faction);
     
     /**
+     * Find unit by name and faction
+     */
+    Optional<MfmUnit> findByNameAndFaction(String name, MfmFaction faction);
+    
+    /**
      * Find units by faction name and version
      */
     @Query("SELECT u FROM MfmUnit u WHERE u.faction.name = :factionName AND u.faction.mfmVersion.version = :version ORDER BY u.name ASC")

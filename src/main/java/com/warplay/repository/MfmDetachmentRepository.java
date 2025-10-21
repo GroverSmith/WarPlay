@@ -21,6 +21,11 @@ public interface MfmDetachmentRepository extends JpaRepository<MfmDetachment, Lo
     List<MfmDetachment> findByFaction(MfmFaction faction);
     
     /**
+     * Find detachment by name and faction
+     */
+    Optional<MfmDetachment> findByNameAndFaction(String name, MfmFaction faction);
+    
+    /**
      * Find detachments by faction name and version
      */
     @Query("SELECT d FROM MfmDetachment d WHERE d.faction.name = :factionName AND d.faction.mfmVersion.version = :version ORDER BY d.name ASC")

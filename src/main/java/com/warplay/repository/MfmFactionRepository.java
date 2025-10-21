@@ -32,6 +32,11 @@ public interface MfmFactionRepository extends JpaRepository<MfmFaction, Long> {
     Optional<MfmFaction> findByNameAndMfmVersionVersion(@Param("name") String name, @Param("version") String version);
     
     /**
+     * Find faction by name and MFM version entity
+     */
+    Optional<MfmFaction> findByNameAndMfmVersion(String name, MfmVersion mfmVersion);
+    
+    /**
      * Find faction by name in latest version
      */
     @Query("SELECT f FROM MfmFaction f WHERE f.name = :name AND f.mfmVersion.isLatest = true")
