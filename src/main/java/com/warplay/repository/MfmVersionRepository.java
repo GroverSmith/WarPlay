@@ -22,9 +22,19 @@ public interface MfmVersionRepository extends JpaRepository<MfmVersion, Long> {
     Optional<MfmVersion> findByIsLatestTrue();
     
     /**
+     * Find the latest active MFM version
+     */
+    Optional<MfmVersion> findByIsLatestTrueAndIsActiveTrue();
+    
+    /**
      * Find all versions ordered by version string
      */
     List<MfmVersion> findAllByOrderByVersionAsc();
+    
+    /**
+     * Find all active versions ordered by version string
+     */
+    List<MfmVersion> findByIsActiveTrueOrderByVersionAsc();
     
     /**
      * Check if a version exists
@@ -38,8 +48,20 @@ public interface MfmVersionRepository extends JpaRepository<MfmVersion, Long> {
     List<String> findAllVersionStrings();
     
     /**
+     * Get all active version strings
+     */
+    @Query("SELECT v.version FROM MfmVersion v WHERE v.isActive = true ORDER BY v.version ASC")
+    List<String> findActiveVersionStrings();
+    
+    /**
      * Find the highest version string
      */
     @Query("SELECT v.version FROM MfmVersion v ORDER BY v.version DESC LIMIT 1")
     Optional<String> findHighestVersion();
+    
+    /**
+     * Find the highest active version string
+     */
+    @Query("SELECT v.version FROM MfmVersion v WHERE v.isActive = true ORDER BY v.version DESC LIMIT 1")
+    Optional<String> findHighestActiveVersion();
 }

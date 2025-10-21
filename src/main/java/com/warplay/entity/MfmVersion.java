@@ -20,6 +20,9 @@ public class MfmVersion {
     @Column(name = "is_latest", nullable = false)
     private Boolean isLatest = false;
     
+    @Column(name = "is_active", nullable = false)
+    private Boolean isActive = true;
+    
     @Column(name = "created_timestamp", nullable = false, updatable = false)
     private LocalDateTime createdTimestamp;
     
@@ -45,6 +48,14 @@ public class MfmVersion {
         this.version = version;
         this.date = date;
         this.isLatest = isLatest;
+        this.isActive = true;
+    }
+    
+    public MfmVersion(String version, String date, Boolean isLatest, Boolean isActive) {
+        this.version = version;
+        this.date = date;
+        this.isLatest = isLatest;
+        this.isActive = isActive;
     }
     
     // Getters and Setters
@@ -78,6 +89,14 @@ public class MfmVersion {
     
     public void setIsLatest(Boolean isLatest) {
         this.isLatest = isLatest;
+    }
+    
+    public Boolean getIsActive() {
+        return isActive;
+    }
+    
+    public void setIsActive(Boolean isActive) {
+        this.isActive = isActive;
     }
     
     public LocalDateTime getCreatedTimestamp() {
