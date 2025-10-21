@@ -56,6 +56,9 @@ public class MfmStartupService {
     @Autowired
     private MfmValidationService mfmValidationService;
     
+    @Autowired
+    private MfmFeedbackService mfmFeedbackService;
+    
     // Patterns for parsing
     private static final Pattern VERSION_PATTERN = Pattern.compile("VERSION\\s+(\\d+\\.\\d+)");
     
@@ -138,6 +141,9 @@ public class MfmStartupService {
                        version, fileName, result.getUnitsCount(), result.getEnhancementsCount(), 
                        result.getFactionsCount(), result.getDetachmentsCount());
             
+            // Generate feedback report
+            mfmFeedbackService.generateQuickSummary(version);
+            
         } catch (Exception e) {
             logger.error("Error processing import file: {}", fileName, e);
         }
@@ -181,6 +187,8 @@ public class MfmStartupService {
                 logger.info("✓ Perfect match for version {}", version);
             } else {
                 logger.warn("⚠ Found {} differences for version {}", result.getDifferences().size(), version);
+                // Generate detailed feedback report for debugging
+                mfmFeedbackService.generateFeedbackReport(version);
             }
             
         } catch (Exception e) {
