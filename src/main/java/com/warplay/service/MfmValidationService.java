@@ -263,8 +263,10 @@ public class MfmValidationService {
      */
     public void saveValidationReport(MfmValidationResult result, String outputPath) throws IOException {
         String report = generateValidationReport(result);
-        Files.write(Paths.get(outputPath), report.getBytes());
-        logger.info("Validation report saved to: {}", outputPath);
+        Path reportPath = Paths.get("logs", outputPath);
+        Files.createDirectories(reportPath.getParent());
+        Files.write(reportPath, report.getBytes());
+        logger.info("Validation report saved to: {}", reportPath.toAbsolutePath());
     }
     
     // Data classes for validation results

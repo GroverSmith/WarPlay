@@ -63,7 +63,8 @@ public class MfmFeedbackService {
                                           version.replace(".", "_"), 
                                           LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss")));
             
-            Path reportPath = Paths.get(fileName);
+            Path reportPath = Paths.get("logs", fileName);
+            Files.createDirectories(reportPath.getParent());
             Files.write(reportPath, report.toString().getBytes());
             
             logger.info("Feedback report saved to: {}", reportPath.toAbsolutePath());
@@ -209,7 +210,8 @@ public class MfmFeedbackService {
             
             // Save quick summary
             String fileName = String.format("mfm-quick-summary-%s.txt", version.replace(".", "_"));
-            Path summaryPath = Paths.get(fileName);
+            Path summaryPath = Paths.get("logs", fileName);
+            Files.createDirectories(summaryPath.getParent());
             Files.write(summaryPath, summary.toString().getBytes());
             
             logger.info("Quick summary saved to: {}", summaryPath.toAbsolutePath());
