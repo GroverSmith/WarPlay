@@ -1,7 +1,7 @@
 package com.warplay.service;
 
 import com.warplay.entity.MfmVersion;
-import com.warplay.repository.MfmVersionRepository;
+import com.warplay.repository.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +18,21 @@ public class MfmVersionManagementService {
     
     @Autowired
     private MfmVersionRepository mfmVersionRepository;
+    
+    @Autowired
+    private MfmFactionRepository mfmFactionRepository;
+    
+    @Autowired
+    private MfmUnitRepository mfmUnitRepository;
+    
+    @Autowired
+    private MfmUnitVariantRepository mfmUnitVariantRepository;
+    
+    @Autowired
+    private MfmDetachmentRepository mfmDetachmentRepository;
+    
+    @Autowired
+    private MfmEnhancementRepository mfmEnhancementRepository;
     
     /**
      * Deactivate a specific MFM version
@@ -94,6 +109,31 @@ public class MfmVersionManagementService {
     public boolean isVersionActive(String version) {
         Optional<MfmVersion> versionOpt = mfmVersionRepository.findByVersion(version);
         return versionOpt.map(MfmVersion::getIsActive).orElse(false);
+    }
+    
+    /**
+     * Delete an entire MFM version and all its data
+     */
+    @Transactional
+    public void deleteVersion(String version) {
+        Optional<MfmVersion> versionOpt = mfmVersionRepository.findByVersion(version);
+        if (versionOpt.isPresent()) {
+            MfmVersion mfmVersion = versionOpt.get();
+            
+            // Delete in correct order to respect foreign key constraints
+            mfmEnhancementRepository.deleteByDetachmentFactionMfmVersion(mfmVersion);
+            mfmUnitVariantRepository.deleteByUnitFactionMfmVersion(mfmVersion);
+            mfmDetachmentRepository.deleteByFactionMfmVersion(mfmVersion);
+            mfmUnitRepository.deleteByFactionMfmVersion(mfmVersion);
+            mfmFactionRepository.deleteByMfmVersion(mfmVersion);
+            
+            // Finally delete the version itself
+            mfmVersionRepository.delete(mfmVersion);
+            
+            logger.info("Successfully deleted MFM version: {}", version);
+        } else {
+            logger.warn("MFM version not found: {}", version);
+        }
     }
     
     /**
