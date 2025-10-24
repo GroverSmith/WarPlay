@@ -2,6 +2,7 @@ package com.warplay.service;
 
 import com.warplay.entity.*;
 import com.warplay.repository.*;
+import com.warplay.service.MfmRawTextParserService.MfmParseData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -138,9 +139,9 @@ public class MfmStartupService {
                 String absolutePath = new ClassPathResource(filePath).getFile().getAbsolutePath();
                 result = mfmRawTextParserService.parseAndStoreMfmFile(absolutePath);
             } catch (Exception e) {
-                // Fallback for production (JAR resources) - create temporary file
-                logger.info("File not accessible as regular file, creating temporary file for JAR resource");
-                result = parseAndStoreMfmFileFromResource(filePath, content);
+                // Fallback for production (JAR resources) - parse directly from content
+                logger.info("File not accessible as regular file, parsing directly from JAR resource content");
+                result = parseAndStoreMfmFileFromContent(filePath, content);
             }
             
             logger.info("Successfully imported {} from file {}: {} units, {} enhancements, {} factions, {} detachments",
@@ -230,27 +231,32 @@ public class MfmStartupService {
     }
     
     /**
-     * Parse and store MFM file from JAR resource by creating a temporary file
+     * Parse and store MFM file directly from content without creating temporary file
      */
-    private MfmRawTextParserService.MfmParseResult parseAndStoreMfmFileFromResource(String filePath, String content) throws IOException {
-        // Create temporary file
-        Path tempFile = Files.createTempFile("mfm-", ".txt");
-        try {
-            // Write content to temporary file
-            Files.write(tempFile, content.getBytes());
-            
-            // Parse using the temporary file
-            MfmRawTextParserService.MfmParseResult result = mfmRawTextParserService.parseAndStoreMfmFile(tempFile.toString());
-            
-            return result;
-        } finally {
-            // Clean up temporary file
-            try {
-                Files.deleteIfExists(tempFile);
-            } catch (IOException e) {
-                logger.warn("Could not delete temporary file: {}", tempFile, e);
-            }
+    private MfmRawTextParserService.MfmParseResult parseAndStoreMfmFileFromContent(String filePath, String content) throws IOException {
+        // Extract version from content
+        String version = extractVersion(content);
+        if (version == null) {
+            throw new IllegalArgumentException("Could not extract version from MFM content");
         }
+        
+        // Extract date from original file path
+        String date = extractDateFromFilename(filePath);
+        
+        // Create or get MFM version (small transaction)
+        MfmVersion mfmVersion = mfmRawTextParserService.createOrGetMfmVersionPublic(version, date);
+        
+        // Parse the content (no database operations)
+        MfmParseData parseData = mfmRawTextParserService.parseMfmContentPublic(content, mfmVersion);
+        
+        // Store in database (separate transaction)
+        mfmRawTextParserService.storeParseDataPublic(parseData, mfmVersion);
+        
+        logger.info("Successfully parsed and stored MFM content. Version: {}, Units: {}, Enhancements: {}", 
+                   version, parseData.getUnits().size(), parseData.getEnhancements().size());
+        
+        return new MfmRawTextParserService.MfmParseResult(version, parseData.getUnits().size(), parseData.getEnhancements().size(), 
+                                 parseData.getFactions().size(), parseData.getDetachments().size());
     }
     
 }
