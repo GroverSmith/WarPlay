@@ -131,10 +131,17 @@ public class MfmStartupService {
                 mfmVersionManagementService.deleteVersion(version);
             }
             
-            // Parse and import the file
-            MfmRawTextParserService.MfmParseResult result = mfmRawTextParserService.parseAndStoreMfmFile(
-                new ClassPathResource(filePath).getFile().getAbsolutePath()
-            );
+            // Parse and import the file - handle both development and production scenarios
+            MfmRawTextParserService.MfmParseResult result;
+            try {
+                // Try to get file path for development
+                String absolutePath = new ClassPathResource(filePath).getFile().getAbsolutePath();
+                result = mfmRawTextParserService.parseAndStoreMfmFile(absolutePath);
+            } catch (Exception e) {
+                // Fallback for production (JAR resources) - create temporary file
+                logger.info("File not accessible as regular file, creating temporary file for JAR resource");
+                result = parseAndStoreMfmFileFromResource(filePath, content);
+            }
             
             logger.info("Successfully imported {} from file {}: {} units, {} enhancements, {} factions, {} detachments",
                        version, fileName, result.getUnitsCount(), result.getEnhancementsCount(), 
@@ -170,9 +177,23 @@ public class MfmStartupService {
                 return;
             }
             
-            // Run validation
-            String originalFilePath = new ClassPathResource(filePath).getFile().getAbsolutePath();
-            MfmValidationService.MfmValidationResult result = mfmValidationService.validateMfmData(version, originalFilePath);
+            // Run validation - handle both development and production scenarios
+            MfmValidationService.MfmValidationResult result;
+            try {
+                // Try to get file path for development
+                String originalFilePath = new ClassPathResource(filePath).getFile().getAbsolutePath();
+                result = mfmValidationService.validateMfmData(version, originalFilePath);
+            } catch (Exception e) {
+                // Fallback for production (JAR resources) - create temporary file
+                logger.info("File not accessible as regular file, creating temporary file for JAR resource validation");
+                Path tempFile = Files.createTempFile("mfm-validation-", ".txt");
+                try {
+                    Files.write(tempFile, content.getBytes());
+                    result = mfmValidationService.validateMfmData(version, tempFile.toString());
+                } finally {
+                    Files.deleteIfExists(tempFile);
+                }
+            }
             
             // Generate and save report
             String reportPath = "mfm-validation-report-" + version + "-" + 
@@ -206,6 +227,30 @@ public class MfmStartupService {
             return matcher.group(1);
         }
         return null;
+    }
+    
+    /**
+     * Parse and store MFM file from JAR resource by creating a temporary file
+     */
+    private MfmRawTextParserService.MfmParseResult parseAndStoreMfmFileFromResource(String filePath, String content) throws IOException {
+        // Create temporary file
+        Path tempFile = Files.createTempFile("mfm-", ".txt");
+        try {
+            // Write content to temporary file
+            Files.write(tempFile, content.getBytes());
+            
+            // Parse using the temporary file
+            MfmRawTextParserService.MfmParseResult result = mfmRawTextParserService.parseAndStoreMfmFile(tempFile.toString());
+            
+            return result;
+        } finally {
+            // Clean up temporary file
+            try {
+                Files.deleteIfExists(tempFile);
+            } catch (IOException e) {
+                logger.warn("Could not delete temporary file: {}", tempFile, e);
+            }
+        }
     }
     
 }
