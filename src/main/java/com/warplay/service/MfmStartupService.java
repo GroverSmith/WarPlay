@@ -10,7 +10,6 @@ import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -58,6 +57,9 @@ public class MfmStartupService {
     
     @Autowired
     private MfmFeedbackService mfmFeedbackService;
+    
+    @Autowired
+    private MfmVersionManagementService mfmVersionManagementService;
     
     // Patterns for parsing
     private static final Pattern VERSION_PATTERN = Pattern.compile("VERSION\\s+(\\d+\\.\\d+)");
@@ -129,7 +131,7 @@ public class MfmStartupService {
             Optional<MfmVersion> existingVersion = mfmVersionRepository.findByVersion(version);
             if (existingVersion.isPresent()) {
                 logger.info("Version {} already exists, dropping existing data and re-importing", version);
-                dropMfmVersionData(existingVersion.get());
+                mfmVersionManagementService.deleteVersion(version);
             }
             
             // Parse and import the file
@@ -209,23 +211,4 @@ public class MfmStartupService {
         return null;
     }
     
-    @Transactional
-    public void dropMfmVersionData(MfmVersion mfmVersion) {
-        logger.info("Dropping existing data for MFM version: {}", mfmVersion.getVersion());
-        
-        try {
-            // Delete in correct order to respect foreign key constraints
-            mfmEnhancementRepository.deleteByDetachmentFactionMfmVersion(mfmVersion);
-            mfmUnitVariantRepository.deleteByUnitFactionMfmVersion(mfmVersion);
-            mfmDetachmentRepository.deleteByFactionMfmVersion(mfmVersion);
-            mfmUnitRepository.deleteByFactionMfmVersion(mfmVersion);
-            mfmFactionRepository.deleteByMfmVersion(mfmVersion);
-            
-            logger.info("Successfully dropped existing data for MFM version: {}", mfmVersion.getVersion());
-            
-        } catch (Exception e) {
-            logger.error("Error dropping existing data for MFM version: {}", mfmVersion.getVersion(), e);
-            throw e;
-        }
-    }
 }
