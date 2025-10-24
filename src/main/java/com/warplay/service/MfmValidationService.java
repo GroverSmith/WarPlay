@@ -77,8 +77,8 @@ public class MfmValidationService {
         content.append("FIELD MANUAL\n");
         content.append(" VERSION ").append(version).append("\n\n");
         
-        // Get all factions for this version
-        List<MfmFaction> factions = mfmFactionRepository.findByMfmVersion(mfmVersion);
+        // Get factions in the original order from the raw file
+        List<MfmFaction> factions = getFactionsInOriginalOrder(version);
         
         for (MfmFaction faction : factions) {
             // Add faction header
@@ -117,6 +117,52 @@ public class MfmValidationService {
         }
         
         return content.toString();
+    }
+    
+    /**
+     * Get factions in the original order from the raw file
+     */
+    private List<MfmFaction> getFactionsInOriginalOrder(String version) {
+        // Define the original faction order from the raw file
+        List<String> originalFactionOrder = Arrays.asList(
+            "ADEPTA SORORITAS",
+            "ADEPTUS CUSTODES", 
+            "ADEPTUS MECHANICUS",
+            "AELDARI",
+            "ASTRA MILITARUM",
+            "BLACK TEMPLARS",
+            "CHAOS KNIGHTS",
+            "CHAOS SPACE MARINES",
+            "DEATH GUARD",
+            "EMPEROR'S CHILDREN",
+            "GENESTEALER CULTS",
+            "GREY KNIGHTS",
+            "IMPERIAL AGENTS",
+            "LEAGUES OF VOTANN",
+            "NECRONS",
+            "ORKS",
+            "SPACE MARINES",
+            "SPACE WOLVES",
+            "T'AU EMPIRE",
+            "THOUSAND SONS",
+            "TYRANIDS",
+            "WORLD EATERS"
+        );
+        
+        // Get all factions for this version
+        List<MfmFaction> allFactions = mfmFactionRepository.findByMfmVersion(
+            mfmVersionRepository.findByVersion(version).orElseThrow()
+        );
+        
+        // Create a map for quick lookup
+        Map<String, MfmFaction> factionMap = allFactions.stream()
+            .collect(Collectors.toMap(MfmFaction::getName, f -> f));
+        
+        // Return factions in original order
+        return originalFactionOrder.stream()
+            .map(factionMap::get)
+            .filter(Objects::nonNull)
+            .collect(Collectors.toList());
     }
     
     /**

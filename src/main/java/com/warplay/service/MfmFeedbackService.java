@@ -251,8 +251,9 @@ public class MfmFeedbackService {
                 summary.append("✗ Version not found in database\n");
             }
             
-            // Save quick summary
-            String fileName = String.format("mfm-quick-summary-%s.txt", version.replace(".", "_"));
+            // Save quick summary with timestamp
+            String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm"));
+            String fileName = String.format("mfm-quick-summary-%s-%s.txt", version.replace(".", "_"), timestamp);
             Path summaryPath = Paths.get("logs", fileName);
             Files.createDirectories(summaryPath.getParent());
             Files.write(summaryPath, summary.toString().getBytes());
@@ -274,8 +275,9 @@ public class MfmFeedbackService {
             // Generate the regenerated content
             String regeneratedContent = mfmValidationService.regenerateMfmFile(version);
             
-            // Save to logs directory
-            String fileName = String.format("mfm-regenerated-%s.txt", version.replace(".", "_"));
+            // Save to logs directory with timestamp
+            String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm"));
+            String fileName = String.format("mfm-regenerated-%s-%s.txt", version.replace(".", "_"), timestamp);
             Path filePath = Paths.get("logs", fileName);
             Files.createDirectories(filePath.getParent());
             Files.write(filePath, regeneratedContent.getBytes());
