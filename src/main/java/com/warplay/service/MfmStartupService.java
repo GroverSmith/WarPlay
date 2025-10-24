@@ -210,7 +210,7 @@ public class MfmStartupService {
     }
     
     @Transactional
-    private void dropMfmVersionData(MfmVersion mfmVersion) {
+    public void dropMfmVersionData(MfmVersion mfmVersion) {
         logger.info("Dropping existing data for MFM version: {}", mfmVersion.getVersion());
         
         try {
