@@ -272,7 +272,7 @@ public class MfmFeedbackService {
             logger.info("Generating regenerated MFM file for manual review");
             
             // Generate the regenerated content
-            String regeneratedContent = mfmValidationService.regenerateMfmFileContent(version);
+            String regeneratedContent = mfmValidationService.regenerateMfmFile(version);
             
             // Save to logs directory
             String fileName = String.format("mfm-regenerated-%s.txt", version.replace(".", "_"));
