@@ -303,15 +303,30 @@ public class MfmRawTextParserService {
     
     /**
      * Check if line is a detachment header
+     * Detachments appear after "DETACHMENT ENHANCEMENTS" and before enhancement entries
      */
     private boolean isDetachmentHeader(String line, MfmParseContext context) {
+        // Only consider detachment headers when we're in an enhancement section
+        if (!context.isEnhancementSection) {
+            return false;
+        }
+        
+        // Detachment headers are lines that:
+        // 1. Are not empty
+        // 2. Don't contain "pts" (enhancements have points)
+        // 3. Don't contain "models" (units have models)
+        // 4. Are not faction headers
+        // 5. Are not section headers
+        // 6. Are not just page numbers
+        // 7. Are not enhancement entries (which have points)
         return !line.isEmpty() && 
                !line.contains("pts") && 
                !line.contains("models") && 
                !isFactionHeader(line) && 
                !isForgeWorldSection(line) &&
                !isEnhancementSectionHeader(line) &&
-               !line.matches("^\\d+$"); // Not just a page number
+               !line.matches("^\\d+$") && // Not just a page number
+               !isEnhancementEntry(line); // Not an enhancement entry
     }
     
     /**
