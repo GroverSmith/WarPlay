@@ -22,13 +22,13 @@ public interface MfmFactionRepository extends JpaRepository<MfmFaction, Long> {
     /**
      * Find factions by version string
      */
-    @Query("SELECT f FROM MfmFaction f WHERE f.mfmVersion.version = :version ORDER BY f.name ASC")
+    @Query("SELECT f FROM MfmFaction f JOIN FETCH f.mfmVersion WHERE f.mfmVersion.version = :version ORDER BY f.name ASC")
     List<MfmFaction> findByMfmVersionVersion(@Param("version") String version);
     
     /**
      * Find faction by name and version
      */
-    @Query("SELECT f FROM MfmFaction f WHERE f.name = :name AND f.mfmVersion.version = :version")
+    @Query("SELECT f FROM MfmFaction f JOIN FETCH f.mfmVersion WHERE f.name = :name AND f.mfmVersion.version = :version")
     Optional<MfmFaction> findByNameAndMfmVersionVersion(@Param("name") String name, @Param("version") String version);
     
     /**
@@ -39,7 +39,7 @@ public interface MfmFactionRepository extends JpaRepository<MfmFaction, Long> {
     /**
      * Find faction by name in latest version
      */
-    @Query("SELECT f FROM MfmFaction f WHERE f.name = :name AND f.mfmVersion.isLatest = true")
+    @Query("SELECT f FROM MfmFaction f JOIN FETCH f.mfmVersion WHERE f.name = :name AND f.mfmVersion.isLatest = true")
     Optional<MfmFaction> findByNameInLatestVersion(@Param("name") String name);
     
     /**

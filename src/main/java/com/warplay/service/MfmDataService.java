@@ -54,12 +54,14 @@ public class MfmDataService {
     }
     
     // Faction operations
+    @Transactional(readOnly = true)
     public List<MfmFactionResponse> getFactionsByVersion(String version) {
         logger.debug("Getting factions for version: {}", version);
         List<MfmFaction> factions = mfmFactionRepository.findByMfmVersionVersion(version);
         return factions.stream().map(MfmFactionResponse::new).collect(Collectors.toList());
     }
     
+    @Transactional(readOnly = true)
     public List<MfmFactionResponse> getFactionsInLatestVersion() {
         logger.debug("Getting factions in latest version");
         List<MfmFaction> factions = mfmFactionRepository.findByMfmVersionVersion(
@@ -67,12 +69,14 @@ public class MfmDataService {
         return factions.stream().map(MfmFactionResponse::new).collect(Collectors.toList());
     }
     
+    @Transactional(readOnly = true)
     public Optional<MfmFactionResponse> getFactionByNameAndVersion(String factionName, String version) {
         logger.debug("Getting faction: {} for version: {}", factionName, version);
         return mfmFactionRepository.findByNameAndMfmVersionVersion(factionName, version)
             .map(MfmFactionResponse::new);
     }
     
+    @Transactional(readOnly = true)
     public Optional<MfmFactionResponse> getFactionByNameInLatestVersion(String factionName) {
         logger.debug("Getting faction: {} in latest version", factionName);
         return mfmFactionRepository.findByNameInLatestVersion(factionName)
