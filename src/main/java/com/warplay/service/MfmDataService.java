@@ -155,12 +155,14 @@ public class MfmDataService {
     }
     
     // Enhancement operations
+    @Transactional(readOnly = true)
     public List<MfmEnhancementResponse> getEnhancementsByDetachmentAndFactionAndVersion(String detachmentName, String factionName, String version) {
         logger.debug("Getting enhancements for detachment: {} in faction: {} and version: {}", detachmentName, factionName, version);
         List<MfmEnhancement> enhancements = mfmEnhancementRepository.findByDetachmentNameAndFactionAndVersion(detachmentName, factionName, version);
         return enhancements.stream().map(MfmEnhancementResponse::new).collect(Collectors.toList());
     }
     
+    @Transactional(readOnly = true)
     public List<MfmEnhancementResponse> getEnhancementsByDetachmentAndFactionInLatestVersion(String detachmentName, String factionName) {
         logger.debug("Getting enhancements for detachment: {} in faction: {} in latest version", detachmentName, factionName);
         List<MfmEnhancement> enhancements = mfmEnhancementRepository.findByDetachmentNameAndFactionInLatestVersion(detachmentName, factionName);

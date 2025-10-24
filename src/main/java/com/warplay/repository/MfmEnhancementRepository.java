@@ -24,25 +24,25 @@ public interface MfmEnhancementRepository extends JpaRepository<MfmEnhancement, 
     /**
      * Find enhancements by detachment name, faction, and version
      */
-    @Query("SELECT e FROM MfmEnhancement e WHERE e.detachment.name = :detachmentName AND e.detachment.faction.name = :factionName AND e.detachment.faction.mfmVersion.version = :version ORDER BY e.name ASC")
+    @Query("SELECT e FROM MfmEnhancement e JOIN FETCH e.detachment d JOIN FETCH d.faction f JOIN FETCH f.mfmVersion WHERE d.name = :detachmentName AND f.name = :factionName AND f.mfmVersion.version = :version ORDER BY e.name ASC")
     List<MfmEnhancement> findByDetachmentNameAndFactionAndVersion(@Param("detachmentName") String detachmentName, @Param("factionName") String factionName, @Param("version") String version);
     
     /**
      * Find enhancements by detachment name and faction in latest version
      */
-    @Query("SELECT e FROM MfmEnhancement e WHERE e.detachment.name = :detachmentName AND e.detachment.faction.name = :factionName AND e.detachment.faction.mfmVersion.isLatest = true ORDER BY e.name ASC")
+    @Query("SELECT e FROM MfmEnhancement e JOIN FETCH e.detachment d JOIN FETCH d.faction f JOIN FETCH f.mfmVersion WHERE d.name = :detachmentName AND f.name = :factionName AND f.mfmVersion.isLatest = true ORDER BY e.name ASC")
     List<MfmEnhancement> findByDetachmentNameAndFactionInLatestVersion(@Param("detachmentName") String detachmentName, @Param("factionName") String factionName);
     
     /**
      * Find enhancement by name, detachment, faction, and version
      */
-    @Query("SELECT e FROM MfmEnhancement e WHERE e.name = :enhancementName AND e.detachment.name = :detachmentName AND e.detachment.faction.name = :factionName AND e.detachment.faction.mfmVersion.version = :version")
+    @Query("SELECT e FROM MfmEnhancement e JOIN FETCH e.detachment d JOIN FETCH d.faction f JOIN FETCH f.mfmVersion WHERE e.name = :enhancementName AND d.name = :detachmentName AND f.name = :factionName AND f.mfmVersion.version = :version")
     Optional<MfmEnhancement> findByNameAndDetachmentAndFactionAndVersion(@Param("enhancementName") String enhancementName, @Param("detachmentName") String detachmentName, @Param("factionName") String factionName, @Param("version") String version);
     
     /**
      * Find enhancement by name, detachment, and faction in latest version
      */
-    @Query("SELECT e FROM MfmEnhancement e WHERE e.name = :enhancementName AND e.detachment.name = :detachmentName AND e.detachment.faction.name = :factionName AND e.detachment.faction.mfmVersion.isLatest = true")
+    @Query("SELECT e FROM MfmEnhancement e JOIN FETCH e.detachment d JOIN FETCH d.faction f JOIN FETCH f.mfmVersion WHERE e.name = :enhancementName AND d.name = :detachmentName AND f.name = :factionName AND f.mfmVersion.isLatest = true")
     Optional<MfmEnhancement> findByNameAndDetachmentAndFactionInLatestVersion(@Param("enhancementName") String enhancementName, @Param("detachmentName") String detachmentName, @Param("factionName") String factionName);
     
     /**
