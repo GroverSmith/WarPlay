@@ -241,7 +241,7 @@ public class MfmStartupService {
         }
         
         // Extract date from original file path
-        String date = extractDateFromFilename(filePath);
+        String date = mfmRawTextParserService.extractDateFromFilename(filePath);
         
         // Create or get MFM version (small transaction)
         MfmVersion mfmVersion = mfmRawTextParserService.createOrGetMfmVersionPublic(version, date);

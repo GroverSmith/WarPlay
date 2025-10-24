@@ -98,7 +98,7 @@ public class MfmRawTextParserService {
     /**
      * Extract date from filename (e.g., "RAW_MFM_3_2_Aug25.txt" -> "Aug 25")
      */
-    private String extractDateFromFilename(String filePath) {
+    public String extractDateFromFilename(String filePath) {
         String filename = Paths.get(filePath).getFileName().toString();
         // Extract date pattern like "Aug25" or "Sep25"
         Pattern datePattern = Pattern.compile("([A-Za-z]{3})(\\d{2})");
