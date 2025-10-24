@@ -2,6 +2,7 @@ package com.warplay.repository;
 
 import com.warplay.entity.MfmDetachment;
 import com.warplay.entity.MfmEnhancement;
+import com.warplay.entity.MfmFaction;
 import com.warplay.entity.MfmVersion;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
