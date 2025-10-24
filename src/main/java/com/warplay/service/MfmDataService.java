@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -79,12 +80,14 @@ public class MfmDataService {
     }
     
     // Unit operations
+    @Transactional(readOnly = true)
     public List<MfmUnitResponse> getUnitsByFactionAndVersion(String factionName, String version) {
         logger.debug("Getting units for faction: {} and version: {}", factionName, version);
         List<MfmUnit> units = mfmUnitRepository.findByFactionNameAndVersion(factionName, version);
         return units.stream().map(MfmUnitResponse::new).collect(Collectors.toList());
     }
     
+    @Transactional(readOnly = true)
     public List<MfmUnitResponse> getUnitsByFactionInLatestVersion(String factionName) {
         logger.debug("Getting units for faction: {} in latest version", factionName);
         List<MfmUnit> units = mfmUnitRepository.findByFactionNameInLatestVersion(factionName);
@@ -125,12 +128,14 @@ public class MfmDataService {
     }
     
     // Detachment operations
+    @Transactional(readOnly = true)
     public List<MfmDetachmentResponse> getDetachmentsByFactionAndVersion(String factionName, String version) {
         logger.debug("Getting detachments for faction: {} and version: {}", factionName, version);
         List<MfmDetachment> detachments = mfmDetachmentRepository.findByFactionNameAndVersion(factionName, version);
         return detachments.stream().map(MfmDetachmentResponse::new).collect(Collectors.toList());
     }
     
+    @Transactional(readOnly = true)
     public List<MfmDetachmentResponse> getDetachmentsByFactionInLatestVersion(String factionName) {
         logger.debug("Getting detachments for faction: {} in latest version", factionName);
         List<MfmDetachment> detachments = mfmDetachmentRepository.findByFactionNameInLatestVersion(factionName);

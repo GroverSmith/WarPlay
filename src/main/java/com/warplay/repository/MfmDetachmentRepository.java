@@ -28,25 +28,25 @@ public interface MfmDetachmentRepository extends JpaRepository<MfmDetachment, Lo
     /**
      * Find detachments by faction name and version
      */
-    @Query("SELECT d FROM MfmDetachment d WHERE d.faction.name = :factionName AND d.faction.mfmVersion.version = :version ORDER BY d.name ASC")
+    @Query("SELECT d FROM MfmDetachment d JOIN FETCH d.faction f JOIN FETCH f.mfmVersion WHERE f.name = :factionName AND f.mfmVersion.version = :version ORDER BY d.name ASC")
     List<MfmDetachment> findByFactionNameAndVersion(@Param("factionName") String factionName, @Param("version") String version);
     
     /**
      * Find detachments by faction name in latest version
      */
-    @Query("SELECT d FROM MfmDetachment d WHERE d.faction.name = :factionName AND d.faction.mfmVersion.isLatest = true ORDER BY d.name ASC")
+    @Query("SELECT d FROM MfmDetachment d JOIN FETCH d.faction f JOIN FETCH f.mfmVersion WHERE f.name = :factionName AND f.mfmVersion.isLatest = true ORDER BY d.name ASC")
     List<MfmDetachment> findByFactionNameInLatestVersion(@Param("factionName") String factionName);
     
     /**
      * Find detachment by name, faction, and version
      */
-    @Query("SELECT d FROM MfmDetachment d WHERE d.name = :detachmentName AND d.faction.name = :factionName AND d.faction.mfmVersion.version = :version")
+    @Query("SELECT d FROM MfmDetachment d JOIN FETCH d.faction f JOIN FETCH f.mfmVersion WHERE d.name = :detachmentName AND f.name = :factionName AND f.mfmVersion.version = :version")
     Optional<MfmDetachment> findByNameAndFactionAndVersion(@Param("detachmentName") String detachmentName, @Param("factionName") String factionName, @Param("version") String version);
     
     /**
      * Find detachment by name and faction in latest version
      */
-    @Query("SELECT d FROM MfmDetachment d WHERE d.name = :detachmentName AND d.faction.name = :factionName AND d.faction.mfmVersion.isLatest = true")
+    @Query("SELECT d FROM MfmDetachment d JOIN FETCH d.faction f JOIN FETCH f.mfmVersion WHERE d.name = :detachmentName AND f.name = :factionName AND f.mfmVersion.isLatest = true")
     Optional<MfmDetachment> findByNameAndFactionInLatestVersion(@Param("detachmentName") String detachmentName, @Param("factionName") String factionName);
     
     /**

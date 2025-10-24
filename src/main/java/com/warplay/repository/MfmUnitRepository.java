@@ -28,25 +28,25 @@ public interface MfmUnitRepository extends JpaRepository<MfmUnit, Long> {
     /**
      * Find units by faction name and version
      */
-    @Query("SELECT u FROM MfmUnit u WHERE u.faction.name = :factionName AND u.faction.mfmVersion.version = :version ORDER BY u.name ASC")
+    @Query("SELECT u FROM MfmUnit u JOIN FETCH u.faction f JOIN FETCH f.mfmVersion WHERE f.name = :factionName AND f.mfmVersion.version = :version ORDER BY u.name ASC")
     List<MfmUnit> findByFactionNameAndVersion(@Param("factionName") String factionName, @Param("version") String version);
     
     /**
      * Find units by faction name in latest version
      */
-    @Query("SELECT u FROM MfmUnit u WHERE u.faction.name = :factionName AND u.faction.mfmVersion.isLatest = true ORDER BY u.name ASC")
+    @Query("SELECT u FROM MfmUnit u JOIN FETCH u.faction f JOIN FETCH f.mfmVersion WHERE f.name = :factionName AND f.mfmVersion.isLatest = true ORDER BY u.name ASC")
     List<MfmUnit> findByFactionNameInLatestVersion(@Param("factionName") String factionName);
     
     /**
      * Find unit by name, faction, and version
      */
-    @Query("SELECT u FROM MfmUnit u WHERE u.name = :unitName AND u.faction.name = :factionName AND u.faction.mfmVersion.version = :version")
+    @Query("SELECT u FROM MfmUnit u JOIN FETCH u.faction f JOIN FETCH f.mfmVersion WHERE u.name = :unitName AND f.name = :factionName AND f.mfmVersion.version = :version")
     Optional<MfmUnit> findByNameAndFactionAndVersion(@Param("unitName") String unitName, @Param("factionName") String factionName, @Param("version") String version);
     
     /**
      * Find unit by name and faction in latest version
      */
-    @Query("SELECT u FROM MfmUnit u WHERE u.name = :unitName AND u.faction.name = :factionName AND u.faction.mfmVersion.isLatest = true")
+    @Query("SELECT u FROM MfmUnit u JOIN FETCH u.faction f JOIN FETCH f.mfmVersion WHERE u.name = :unitName AND f.name = :factionName AND f.mfmVersion.isLatest = true")
     Optional<MfmUnit> findByNameAndFactionInLatestVersion(@Param("unitName") String unitName, @Param("factionName") String factionName);
     
     /**
