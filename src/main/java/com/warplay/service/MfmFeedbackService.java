@@ -1,7 +1,7 @@
 package com.warplay.service;
 
-import com.warplay.entity.MfmVersion;
-import com.warplay.repository.MfmVersionRepository;
+import com.warplay.entity.*;
+import com.warplay.repository.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +26,18 @@ public class MfmFeedbackService {
     
     @Autowired
     private MfmVersionRepository mfmVersionRepository;
+    
+    @Autowired
+    private MfmFactionRepository mfmFactionRepository;
+    
+    @Autowired
+    private MfmUnitRepository mfmUnitRepository;
+    
+    @Autowired
+    private MfmDetachmentRepository mfmDetachmentRepository;
+    
+    @Autowired
+    private MfmEnhancementRepository mfmEnhancementRepository;
     
     @Autowired
     private MfmValidationService mfmValidationService;
@@ -186,7 +198,7 @@ public class MfmFeedbackService {
     }
     
     /**
-     * Generate a simple summary report for quick feedback
+     * Generate a simple summary report with faction statistics
      */
     public void generateQuickSummary(String version) {
         if (!generateFeedback) {
@@ -199,11 +211,42 @@ public class MfmFeedbackService {
             summary.append("Version: ").append(version).append("\n");
             summary.append("Time: ").append(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)).append("\n\n");
             
-            // Get basic stats
+            // Get version info
             Optional<MfmVersion> mfmVersion = mfmVersionRepository.findByVersion(version);
             if (mfmVersion.isPresent()) {
                 summary.append("✓ Version imported successfully\n");
-                summary.append("  Created: ").append(mfmVersion.get().getCreatedTimestamp()).append("\n");
+                summary.append("  Created: ").append(mfmVersion.get().getCreatedTimestamp()).append("\n\n");
+                
+                // Get faction statistics
+                List<MfmFaction> factions = mfmFactionRepository.findByMfmVersion(mfmVersion.get());
+                summary.append("FACTION STATISTICS:\n");
+                summary.append("==================\n");
+                summary.append(String.format("Total Factions: %d\n\n", factions.size()));
+                
+                for (MfmFaction faction : factions) {
+                    // Count units for this faction
+                    long unitCount = mfmUnitRepository.countByFaction(faction);
+                    
+                    // Count detachments for this faction
+                    long detachmentCount = mfmDetachmentRepository.countByFaction(faction);
+                    
+                    // Count enhancements for this faction
+                    long enhancementCount = mfmEnhancementRepository.countByDetachmentFaction(faction);
+                    
+                    summary.append(String.format("Faction: %s\n", faction.getName()));
+                    summary.append(String.format("  Units: %d\n", unitCount));
+                    summary.append(String.format("  Detachments: %d\n", detachmentCount));
+                    summary.append(String.format("  Enhancements: %d\n", enhancementCount));
+                    summary.append(String.format("  Supergroup: %s\n", faction.getSupergroup()));
+                    if (faction.getAllyTo() != null) {
+                        summary.append(String.format("  Ally To: %s\n", faction.getAllyTo()));
+                    }
+                    summary.append("\n");
+                }
+                
+                // Generate regenerated file for manual review
+                generateRegeneratedFile(version, mfmVersion.get());
+                
             } else {
                 summary.append("✗ Version not found in database\n");
             }
@@ -218,6 +261,29 @@ public class MfmFeedbackService {
             
         } catch (Exception e) {
             logger.error("Error generating quick summary for version: {}", version, e);
+        }
+    }
+    
+    /**
+     * Generate regenerated MFM file for manual review
+     */
+    private void generateRegeneratedFile(String version, MfmVersion mfmVersion) {
+        try {
+            logger.info("Generating regenerated MFM file for manual review");
+            
+            // Generate the regenerated content
+            String regeneratedContent = mfmValidationService.regenerateMfmFileContent(version);
+            
+            // Save to logs directory
+            String fileName = String.format("mfm-regenerated-%s.txt", version.replace(".", "_"));
+            Path filePath = Paths.get("logs", fileName);
+            Files.createDirectories(filePath.getParent());
+            Files.write(filePath, regeneratedContent.getBytes());
+            
+            logger.info("Regenerated MFM file saved to: {}", filePath.toAbsolutePath());
+            
+        } catch (Exception e) {
+            logger.error("Error generating regenerated file for version: {}", version, e);
         }
     }
 }

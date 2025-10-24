@@ -74,10 +74,7 @@ public class MfmStartupService {
                 processImportFiles();
             }
             
-            // Process verification files
-            if (verifyMfmFiles != null && !verifyMfmFiles.trim().isEmpty()) {
-                processVerificationFiles();
-            }
+            // Note: Verification replaced with regenerated file output in quick summary
             
             logger.info("MFM file processing completed successfully");
             
@@ -143,7 +140,7 @@ public class MfmStartupService {
                        version, fileName, result.getUnitsCount(), result.getEnhancementsCount(), 
                        result.getFactionsCount(), result.getDetachmentsCount());
             
-            // Generate feedback report
+            // Generate quick summary with faction statistics
             mfmFeedbackService.generateQuickSummary(version);
             
         } catch (Exception e) {

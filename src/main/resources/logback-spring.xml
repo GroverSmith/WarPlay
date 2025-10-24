@@ -24,9 +24,10 @@
 
     <!-- File appender for local development (human-readable format with debug level) -->
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>logs/warplay.log</file>
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>logs/warplay.%d{yyyy-MM-dd}.log</fileNamePattern>
+        <file>logs/${startup.timestamp:-${java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm"))}}_warplay.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>logs/%d{yyyy-MM-dd-HH-mm}_warplay.log</fileNamePattern>
+            <maxFileSize>50MB</maxFileSize>
             <maxHistory>30</maxHistory>
             <totalSizeCap>300MB</totalSizeCap>
         </rollingPolicy>

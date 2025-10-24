@@ -73,4 +73,9 @@ public interface MfmUnitRepository extends JpaRepository<MfmUnit, Long> {
     @Modifying
     @Query("DELETE FROM MfmUnit u WHERE u.faction.mfmVersion = :mfmVersion")
     void deleteByFactionMfmVersion(@Param("mfmVersion") MfmVersion mfmVersion);
+    
+    /**
+     * Count units by faction
+     */
+    long countByFaction(MfmFaction faction);
 }

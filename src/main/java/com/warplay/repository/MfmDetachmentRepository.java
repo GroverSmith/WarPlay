@@ -73,4 +73,9 @@ public interface MfmDetachmentRepository extends JpaRepository<MfmDetachment, Lo
     @Modifying
     @Query("DELETE FROM MfmDetachment d WHERE d.faction.mfmVersion = :mfmVersion")
     void deleteByFactionMfmVersion(@Param("mfmVersion") MfmVersion mfmVersion);
+    
+    /**
+     * Count detachments by faction
+     */
+    long countByFaction(MfmFaction faction);
 }

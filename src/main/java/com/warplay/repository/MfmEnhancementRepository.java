@@ -80,4 +80,9 @@ public interface MfmEnhancementRepository extends JpaRepository<MfmEnhancement, 
     @Modifying
     @Query("DELETE FROM MfmEnhancement e WHERE e.detachment.faction.mfmVersion = :mfmVersion")
     void deleteByDetachmentFactionMfmVersion(@Param("mfmVersion") MfmVersion mfmVersion);
+    
+    /**
+     * Count enhancements by faction
+     */
+    long countByDetachmentFaction(MfmFaction faction);
 }
