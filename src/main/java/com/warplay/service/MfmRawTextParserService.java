@@ -56,7 +56,6 @@ public class MfmRawTextParserService {
     /**
      * Parse a raw MFM text file and store the data in the database
      */
-    @Transactional
     public MfmParseResult parseAndStoreMfmFile(String filePath) throws IOException {
         logger.info("Starting to parse raw MFM file: {}", filePath);
         
@@ -69,14 +68,14 @@ public class MfmRawTextParserService {
             throw new IllegalArgumentException("Could not extract version from MFM file");
         }
         
-        // Create or get MFM version
-        MfmVersion mfmVersion = createOrGetMfmVersion(version, extractDateFromFilename(filePath));
+        // Create or get MFM version (small transaction)
+        MfmVersion mfmVersion = createOrGetMfmVersionInTransaction(version, extractDateFromFilename(filePath));
         
-        // Parse the content
+        // Parse the content (no database operations)
         MfmParseData parseData = parseMfmContent(content, mfmVersion);
         
-        // Store in database
-        storeParseData(parseData, mfmVersion);
+        // Store in database (separate transaction)
+        storeParseDataInTransaction(parseData, mfmVersion);
         
         logger.info("Successfully parsed and stored MFM file. Version: {}, Units: {}, Enhancements: {}", 
                    version, parseData.getUnits().size(), parseData.getEnhancements().size());
@@ -128,6 +127,14 @@ public class MfmRawTextParserService {
         
         MfmVersion newVersion = new MfmVersion(version, date, true);
         return mfmVersionRepository.save(newVersion);
+    }
+    
+    /**
+     * Create or get MFM version in a separate transaction
+     */
+    @Transactional
+    private MfmVersion createOrGetMfmVersionInTransaction(String version, String date) {
+        return createOrGetMfmVersion(version, date);
     }
     
     /**
@@ -485,6 +492,37 @@ public class MfmRawTextParserService {
                 mfmEnhancementRepository.save(enhancement);
             }
         }
+    }
+    
+    /**
+     * Store parsed data in database in a separate transaction
+     */
+    @Transactional
+    private void storeParseDataInTransaction(MfmParseData parseData, MfmVersion mfmVersion) {
+        storeParseData(parseData, mfmVersion);
+    }
+    
+    /**
+     * Public method to create or get MFM version
+     */
+    @Transactional
+    public MfmVersion createOrGetMfmVersionPublic(String version, String date) {
+        return createOrGetMfmVersion(version, date);
+    }
+    
+    /**
+     * Public method to parse MFM content
+     */
+    public MfmParseData parseMfmContentPublic(String content, MfmVersion mfmVersion) {
+        return parseMfmContent(content, mfmVersion);
+    }
+    
+    /**
+     * Public method to store parsed data
+     */
+    @Transactional
+    public void storeParseDataPublic(MfmParseData parseData, MfmVersion mfmVersion) {
+        storeParseData(parseData, mfmVersion);
     }
     
     /**
