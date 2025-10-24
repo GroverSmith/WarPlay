@@ -44,6 +44,9 @@ public class Force {
     @Column(name = "logo_url", columnDefinition = "TEXT")
     private String imageUrl;
     
+    @Column(name = "mfm_version", length = 20)
+    private String mfmVersion;
+    
     @Column(name = "created_timestamp", nullable = false, updatable = false)
     private LocalDateTime createdTimestamp;
     
@@ -163,6 +166,14 @@ public class Force {
     
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
+    }
+    
+    public String getMfmVersion() {
+        return mfmVersion;
+    }
+    
+    public void setMfmVersion(String mfmVersion) {
+        this.mfmVersion = mfmVersion;
     }
     
     public LocalDateTime getCreatedTimestamp() {
