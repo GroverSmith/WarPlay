@@ -3,6 +3,7 @@ package com.warplay.service;
 import com.warplay.dto.UserUpdateDTO;
 import com.warplay.entity.User;
 import com.warplay.repository.UserRepository;
+import com.warplay.util.ValidationUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -382,34 +383,17 @@ public class UserService {
     }
 
     private void validateUser(User user) {
-        if (user.getGoogleId() == null || user.getGoogleId().trim().isEmpty()) {
-            throw new IllegalArgumentException("Google ID cannot be empty");
-        }
-
-        if (user.getName() == null || user.getName().trim().isEmpty()) {
-            throw new IllegalArgumentException("User name cannot be empty");
-        }
-
-        if (user.getName().length() > 100) {
-            throw new IllegalArgumentException("User name cannot exceed 100 characters");
-        }
+        // Use centralized validation utilities
+        ValidationUtils.validateNotEmpty(user.getGoogleId(), "Google ID");
+        ValidationUtils.validateName(user.getName(), "User name");
 
         logger.debug("User validation passed for: {}", user.getName());
     }
 
     private void validateUserUpdate(User user) {
-        if (user.getName() == null || user.getName().trim().isEmpty()) {
-            throw new IllegalArgumentException("User name cannot be empty");
-        }
-
-        if (user.getName().length() > 100) {
-            throw new IllegalArgumentException("User name cannot exceed 100 characters");
-        }
-
-        // Discord handle validation
-        if (user.getDiscordHandle() != null && user.getDiscordHandle().length() > 50) {
-            throw new IllegalArgumentException("Discord handle cannot exceed 50 characters");
-        }
+        // Use centralized validation utilities
+        ValidationUtils.validateName(user.getName(), "User name");
+        ValidationUtils.validateDiscordHandle(user.getDiscordHandle(), "Discord handle");
 
         logger.debug("User update validation passed for: {}", user.getName());
     }

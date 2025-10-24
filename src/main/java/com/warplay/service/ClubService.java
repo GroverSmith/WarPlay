@@ -5,6 +5,7 @@ import com.warplay.dto.ClubWithMemberCount;
 import com.warplay.entity.Club;
 import com.warplay.repository.ClubRepository;
 import com.warplay.repository.UserClubRepository;
+import com.warplay.util.ValidationUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -354,36 +355,13 @@ public class ClubService {
     }
 
     private void validateClub(Club club, Long excludeId) {
-        if (club.getName() == null || club.getName().trim().isEmpty()) {
-            throw new IllegalArgumentException("Club name cannot be empty");
-        }
-
-        if (club.getName().length() > 100) {
-            throw new IllegalArgumentException("Club name cannot exceed 100 characters");
-        }
-
-        if (club.getGameSystem() == null || club.getGameSystem().trim().isEmpty()) {
-            throw new IllegalArgumentException("Game system cannot be empty");
-        }
-
-        if (club.getOwnerId() == null) {
-            throw new IllegalArgumentException("Owner ID cannot be null");
-        }
-
-        if (club.getCountryCode() == null || club.getCountryCode().length() != 2) {
-            throw new IllegalArgumentException("Country code must be exactly 2 characters");
-        }
-
-        if (club.getCity() == null || club.getCity().trim().isEmpty()) {
-            throw new IllegalArgumentException("City cannot be empty");
-        }
-
-        // Email validation is handled by @Email annotation, but we can add additional checks
-        if (club.getContactEmail() != null && !club.getContactEmail().trim().isEmpty()) {
-            if (club.getContactEmail().length() > 100) {
-                throw new IllegalArgumentException("Contact email cannot exceed 100 characters");
-            }
-        }
+        // Use centralized validation utilities
+        ValidationUtils.validateName(club.getName(), "Club name");
+        ValidationUtils.validateNotEmpty(club.getGameSystem(), "Game system");
+        ValidationUtils.validateNotNull(club.getOwnerId(), "Owner ID");
+        ValidationUtils.validateCountryCode(club.getCountryCode(), "Country code");
+        ValidationUtils.validateNotEmpty(club.getCity(), "City");
+        ValidationUtils.validateEmail(club.getContactEmail(), "Contact email");
 
         logger.debug("Club validation passed for: {}", club.getName());
     }

@@ -31,7 +31,6 @@ public class MfmController {
     
     @GetMapping("/versions/latest")
     public ResponseEntity<MfmVersionResponse> getLatestVersion() {
-        logger.info("Getting latest MFM version");
         Optional<MfmVersionResponse> version = mfmDataService.getLatestVersion();
         return version.map(ResponseEntity::ok)
                      .orElse(ResponseEntity.notFound().build());

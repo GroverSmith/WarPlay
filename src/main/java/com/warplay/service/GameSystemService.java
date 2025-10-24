@@ -3,6 +3,7 @@ package com.warplay.service;
 import com.warplay.entity.GameSystem;
 import com.warplay.repository.GameSystemRepository;
 import com.warplay.repository.UserGameSystemRepository;
+import com.warplay.util.ValidationUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -266,21 +267,10 @@ public class GameSystemService {
     }
 
     private void validateGameSystem(GameSystem gameSystem) {
-        if (gameSystem.getName() == null || gameSystem.getName().trim().isEmpty()) {
-            throw new IllegalArgumentException("Game system name cannot be empty");
-        }
-
-        if (gameSystem.getName().length() > 100) {
-            throw new IllegalArgumentException("Game system name cannot exceed 100 characters");
-        }
-
-        if (gameSystem.getShortName() != null && gameSystem.getShortName().length() > 20) {
-            throw new IllegalArgumentException("Short name cannot exceed 20 characters");
-        }
-
-        if (gameSystem.getPublisher() != null && gameSystem.getPublisher().length() > 100) {
-            throw new IllegalArgumentException("Publisher cannot exceed 100 characters");
-        }
+        // Use centralized validation utilities
+        ValidationUtils.validateName(gameSystem.getName(), "Game system name");
+        ValidationUtils.validateShortName(gameSystem.getShortName(), "Short name");
+        ValidationUtils.validatePublisher(gameSystem.getPublisher(), "Publisher");
 
         logger.debug("Game system validation passed for: {}", gameSystem.getName());
     }
