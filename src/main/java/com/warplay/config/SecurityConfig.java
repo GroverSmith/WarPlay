@@ -58,6 +58,9 @@ public class SecurityConfig {
                 // Authentication endpoints - no authentication required
                 .requestMatchers("/api/auth/**").permitAll()
                 
+                // Public read-only MFM endpoints - no authentication required
+                .requestMatchers("/api/mfm/**").permitAll()
+                
                 // All other API endpoints require authentication
                 .requestMatchers("/api/**").authenticated()
                 
