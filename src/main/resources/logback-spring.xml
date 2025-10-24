@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
+    <!-- Define timestamp variable for file naming -->
+    <timestamp key="startupTimestamp" datePattern="yyyy-MM-dd'_'HH-mm-ss.SSS"/>
     <!-- Console appender for Railway deployment (JSON format) -->
     <appender name="CONSOLE_JSON" class="ch.qos.logback.core.ConsoleAppender">
         <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
@@ -24,7 +26,7 @@
 
     <!-- File appender for local development (human-readable format with debug level) -->
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>logs/%d{yyyy-MM-dd-HH-mm}_warplay.log</file>
+        <file>logs/warplay-${startupTimestamp}.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
             <fileNamePattern>logs/%d{yyyy-MM-dd-HH-mm}_warplay.%i.log</fileNamePattern>
             <minIndex>1</minIndex>
