@@ -42,7 +42,9 @@ public class CreateCrusadeRequest {
     private String narrativeBlock2;
 
     private String narrativeBlock3;
-
+    
+    private String imageUrl;
+    
     // Constructors
     public CreateCrusadeRequest() {}
 
@@ -65,7 +67,15 @@ public class CreateCrusadeRequest {
         this.narrativeBlock2 = narrativeBlock2;
         this.narrativeBlock3 = narrativeBlock3;
     }
-
+    
+    public String getImageUrl() {
+        return imageUrl;
+    }
+    
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+    
     // Getters and Setters
     public String getName() {
         return name;

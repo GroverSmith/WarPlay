@@ -180,6 +180,11 @@ public class CrusadeService {
                     request.getNarrativeBlock3()
             );
 
+            // Set image URL if provided
+            if (request.getImageUrl() != null) {
+                crusade.setImageUrl(request.getImageUrl());
+            }
+
             Crusade savedCrusade = crusadeRepository.save(crusade);
 
             long duration = System.currentTimeMillis() - startTime;
@@ -246,6 +251,11 @@ public class CrusadeService {
                 crusadeToUpdate.setNarrativeBlock1(request.getNarrativeBlock1());
                 crusadeToUpdate.setNarrativeBlock2(request.getNarrativeBlock2());
                 crusadeToUpdate.setNarrativeBlock3(request.getNarrativeBlock3());
+                
+                // Update image URL if provided
+                if (request.getImageUrl() != null) {
+                    crusadeToUpdate.setImageUrl(request.getImageUrl());
+                }
 
                 Crusade updatedCrusade = crusadeRepository.save(crusadeToUpdate);
 

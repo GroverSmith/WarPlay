@@ -38,7 +38,9 @@ public class UpdateCrusadeRequest {
     private String narrativeBlock2;
 
     private String narrativeBlock3;
-
+    
+    private String imageUrl;
+    
     // Constructors
     public UpdateCrusadeRequest() {}
 
@@ -60,7 +62,15 @@ public class UpdateCrusadeRequest {
         this.narrativeBlock2 = narrativeBlock2;
         this.narrativeBlock3 = narrativeBlock3;
     }
-
+    
+    public String getImageUrl() {
+        return imageUrl;
+    }
+    
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+    
     // Getters and Setters
     public String getName() {
         return name;

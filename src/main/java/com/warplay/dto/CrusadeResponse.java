@@ -167,7 +167,15 @@ public class CrusadeResponse {
     public void setNarrativeBlock3(String narrativeBlock3) {
         this.narrativeBlock3 = narrativeBlock3;
     }
-
+    
+    public String getImageUrl() {
+        return imageUrl;
+    }
+    
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+    
     public LocalDateTime getCreatedTimestamp() {
         return createdTimestamp;
     }
