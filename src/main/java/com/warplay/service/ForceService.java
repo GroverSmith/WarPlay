@@ -44,11 +44,11 @@ public class ForceService {
      * Create a new force
      */
     @Transactional
-    public ForceResponse createForce(CreateForceRequest request, String googleUserId) {
+    public ForceResponse createForce(CreateForceRequest request, Long userId) {
         logger.info("Creating force: {} for club: {}", request.getName(), request.getClubId());
         
-        // Find user by Google ID
-        User user = userRepository.findByGoogleId(googleUserId)
+        // Find user by ID
+        User user = userRepository.findById(userId)
             .orElseThrow(() -> new RuntimeException("User not found"));
         
         // Validate required fields
@@ -152,14 +152,14 @@ public class ForceService {
      * Update a force
      */
     @Transactional
-    public ForceResponse updateForce(Long id, CreateForceRequest request, String googleUserId) {
+    public ForceResponse updateForce(Long id, CreateForceRequest request, Long userId) {
         logger.info("Updating force: {}", id);
         
         Force force = forceRepository.findByIdAndDeletedTimestampIsNull(id)
             .orElseThrow(() -> new RuntimeException("Force not found"));
         
-        // Find user by Google ID
-        User user = userRepository.findByGoogleId(googleUserId)
+        // Find user by ID
+        User user = userRepository.findById(userId)
             .orElseThrow(() -> new RuntimeException("User not found"));
         
         // Verify user owns this force
@@ -215,14 +215,14 @@ public class ForceService {
      * Soft delete a force
      */
     @Transactional
-    public void deleteForce(Long id, String googleUserId) {
+    public void deleteForce(Long id, Long userId) {
         logger.info("Deleting force: {}", id);
         
         Force force = forceRepository.findByIdAndDeletedTimestampIsNull(id)
             .orElseThrow(() -> new RuntimeException("Force not found"));
         
-        // Find user by Google ID
-        User user = userRepository.findByGoogleId(googleUserId)
+        // Find user by ID
+        User user = userRepository.findById(userId)
             .orElseThrow(() -> new RuntimeException("User not found"));
         
         // Verify user owns this force

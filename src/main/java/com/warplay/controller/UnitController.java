@@ -3,7 +3,7 @@ package com.warplay.controller;
 import com.warplay.dto.CreateUnitRequest;
 import com.warplay.dto.UnitResponse;
 import com.warplay.service.UnitService;
-import com.warplay.service.JwtService;
+import com.warplay.util.AuthUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +26,7 @@ public class UnitController {
     private UnitService unitService;
     
     @Autowired
-    private JwtService jwtService;
+    private AuthUtils authUtils;
     
     /**
      * Create a new unit
@@ -39,15 +39,15 @@ public class UnitController {
         try {
             logger.info("API request to create unit: {}", request.getName());
             
-            // Extract Google user ID from Authorization header
-            String googleUserId = extractUserIdFromAuth(authHeader);
-            if (googleUserId == null) {
+            // Extract user ID from Authorization header
+            Long userId = authUtils.validateAndExtractUserId(authHeader);
+            if (userId == null) {
                 logger.warn("Unauthorized attempt to create unit");
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("message", "Authentication required"));
             }
             
-            UnitResponse unit = unitService.createUnit(request, googleUserId);
+            UnitResponse unit = unitService.createUnit(request, userId);
             return ResponseEntity.status(HttpStatus.CREATED).body(unit);
             
         } catch (IllegalArgumentException e) {
@@ -138,15 +138,15 @@ public class UnitController {
         try {
             logger.info("API request to update unit: {}", id);
             
-            // Extract Google user ID from Authorization header
-            String googleUserId = extractUserIdFromAuth(authHeader);
-            if (googleUserId == null) {
+            // Extract user ID from Authorization header
+            Long userId = authUtils.validateAndExtractUserId(authHeader);
+            if (userId == null) {
                 logger.warn("Unauthorized attempt to update unit: {}", id);
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("message", "Authentication required"));
             }
             
-            UnitResponse unit = unitService.updateUnit(id, request, googleUserId);
+            UnitResponse unit = unitService.updateUnit(id, request, userId);
             return ResponseEntity.ok(unit);
             
         } catch (RuntimeException e) {
@@ -171,15 +171,15 @@ public class UnitController {
         try {
             logger.info("API request to delete unit: {}", id);
             
-            // Extract Google user ID from Authorization header
-            String googleUserId = extractUserIdFromAuth(authHeader);
-            if (googleUserId == null) {
+            // Extract user ID from Authorization header
+            Long userId = authUtils.validateAndExtractUserId(authHeader);
+            if (userId == null) {
                 logger.warn("Unauthorized attempt to delete unit: {}", id);
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("message", "Authentication required"));
             }
             
-            unitService.deleteUnit(id, googleUserId);
+            unitService.deleteUnit(id, userId);
             return ResponseEntity.ok(Map.of("message", "Unit deleted successfully"));
             
         } catch (RuntimeException e) {
@@ -193,21 +193,4 @@ public class UnitController {
         }
     }
     
-    /**
-     * Extract Google user ID from Authorization header
-     */
-    private String extractUserIdFromAuth(String authHeader) {
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            String token = authHeader.substring(7);
-            try {
-                Optional<Map<String, Object>> userInfo = jwtService.validateToken(token);
-                if (userInfo.isPresent()) {
-                    return (String) userInfo.get().get("googleId");
-                }
-            } catch (Exception e) {
-                logger.warn("Failed to extract user ID from token: {}", e.getMessage());
-            }
-        }
-        return null;
-    }
 }

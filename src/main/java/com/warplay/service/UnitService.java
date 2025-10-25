@@ -40,11 +40,11 @@ public class UnitService {
      * Create a new unit
      */
     @Transactional
-    public UnitResponse createUnit(CreateUnitRequest request, String googleUserId) {
+    public UnitResponse createUnit(CreateUnitRequest request, Long userId) {
         logger.info("Creating unit: {} for force: {}", request.getName(), request.getForceId());
         
-        // Find user by Google ID
-        User user = userRepository.findByGoogleId(googleUserId)
+        // Find user by ID
+        User user = userRepository.findById(userId)
             .orElseThrow(() -> new RuntimeException("User not found"));
         
         // Validate required fields
@@ -168,14 +168,14 @@ public class UnitService {
      * Update a unit
      */
     @Transactional
-    public UnitResponse updateUnit(Long id, CreateUnitRequest request, String googleUserId) {
+    public UnitResponse updateUnit(Long id, CreateUnitRequest request, Long userId) {
         logger.info("Updating unit: {}", id);
         
         Unit unit = unitRepository.findByIdAndDeletedTimestampIsNull(id)
             .orElseThrow(() -> new RuntimeException("Unit not found"));
         
-        // Find user by Google ID
-        User user = userRepository.findByGoogleId(googleUserId)
+        // Find user by ID
+        User user = userRepository.findById(userId)
             .orElseThrow(() -> new RuntimeException("User not found"));
         
         // Verify user owns this unit
@@ -275,14 +275,14 @@ public class UnitService {
      * Soft delete a unit
      */
     @Transactional
-    public void deleteUnit(Long id, String googleUserId) {
+    public void deleteUnit(Long id, Long userId) {
         logger.info("Deleting unit: {}", id);
         
         Unit unit = unitRepository.findByIdAndDeletedTimestampIsNull(id)
             .orElseThrow(() -> new RuntimeException("Unit not found"));
         
-        // Find user by Google ID
-        User user = userRepository.findByGoogleId(googleUserId)
+        // Find user by ID
+        User user = userRepository.findById(userId)
             .orElseThrow(() -> new RuntimeException("User not found"));
         
         // Verify user owns this unit

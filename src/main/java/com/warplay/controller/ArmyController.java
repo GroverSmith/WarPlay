@@ -3,7 +3,7 @@ package com.warplay.controller;
 import com.warplay.dto.ArmyResponse;
 import com.warplay.dto.CreateArmyRequest;
 import com.warplay.service.ArmyService;
-import com.warplay.service.JwtService;
+import com.warplay.util.AuthUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/armies")
@@ -25,7 +26,7 @@ public class ArmyController {
     private ArmyService armyService;
     
     @Autowired
-    private JwtService jwtService;
+    private AuthUtils authUtils;
     
     /**
      * Create a new army
@@ -39,7 +40,7 @@ public class ArmyController {
             logger.info("API request to create army: {}", request.getName());
             
             // Extract user ID from Authorization header
-            Long userId = extractUserIdFromAuth(authHeader);
+            Long userId = authUtils.validateAndExtractUserId(authHeader);
             if (userId == null) {
                 logger.warn("Unauthorized attempt to create army");
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
@@ -74,7 +75,7 @@ public class ArmyController {
             logger.info("API request to get army: {}", id);
             
             // Extract user ID from Authorization header
-            Long userId = extractUserIdFromAuth(authHeader);
+            Long userId = authUtils.validateAndExtractUserId(authHeader);
             if (userId == null) {
                 logger.warn("Unauthorized attempt to get army");
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
@@ -107,7 +108,7 @@ public class ArmyController {
             logger.info("API request to get armies for force: {}", forceId);
             
             // Extract user ID from Authorization header
-            Long userId = extractUserIdFromAuth(authHeader);
+            Long userId = authUtils.validateAndExtractUserId(authHeader);
             if (userId == null) {
                 logger.warn("Unauthorized attempt to get armies");
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
@@ -147,7 +148,7 @@ public class ArmyController {
             logger.info("API request to update army: {}", id);
             
             // Extract user ID from Authorization header
-            Long userId = extractUserIdFromAuth(authHeader);
+            Long userId = authUtils.validateAndExtractUserId(authHeader);
             if (userId == null) {
                 logger.warn("Unauthorized attempt to update army");
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
@@ -182,7 +183,7 @@ public class ArmyController {
             logger.info("API request to delete army: {}", id);
             
             // Extract user ID from Authorization header
-            Long userId = extractUserIdFromAuth(authHeader);
+            Long userId = authUtils.validateAndExtractUserId(authHeader);
             if (userId == null) {
                 logger.warn("Unauthorized attempt to delete army");
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
@@ -205,20 +206,4 @@ public class ArmyController {
         }
     }
     
-    /**
-     * Extract user ID from Authorization header
-     */
-    private Long extractUserIdFromAuth(String authHeader) {
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            return null;
-        }
-        
-        try {
-            String token = authHeader.substring(7);
-            return jwtService.extractUserId(token);
-        } catch (Exception e) {
-            logger.warn("Error extracting user ID from token: {}", e.getMessage());
-            return null;
-        }
-    }
 }

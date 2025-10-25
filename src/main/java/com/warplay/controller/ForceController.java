@@ -3,7 +3,7 @@ package com.warplay.controller;
 import com.warplay.dto.CreateForceRequest;
 import com.warplay.dto.ForceResponse;
 import com.warplay.service.ForceService;
-import com.warplay.service.JwtService;
+import com.warplay.util.AuthUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +26,7 @@ public class ForceController {
     private ForceService forceService;
     
     @Autowired
-    private JwtService jwtService;
+    private AuthUtils authUtils;
     
     /**
      * Create a new force
@@ -39,15 +39,15 @@ public class ForceController {
         try {
             logger.info("API request to create force: {}", request.getName());
             
-            // Extract Google user ID from Authorization header
-            String googleUserId = extractUserIdFromAuth(authHeader);
-            if (googleUserId == null) {
+            // Extract user ID from Authorization header
+            Long userId = authUtils.validateAndExtractUserId(authHeader);
+            if (userId == null) {
                 logger.warn("Unauthorized attempt to create force");
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("message", "Authentication required"));
             }
             
-            ForceResponse force = forceService.createForce(request, googleUserId);
+            ForceResponse force = forceService.createForce(request, userId);
             return ResponseEntity.status(HttpStatus.CREATED).body(force);
             
         } catch (IllegalArgumentException e) {
@@ -138,15 +138,15 @@ public class ForceController {
         try {
             logger.info("API request to update force: {}", id);
             
-            // Extract Google user ID from Authorization header
-            String googleUserId = extractUserIdFromAuth(authHeader);
-            if (googleUserId == null) {
+            // Extract user ID from Authorization header
+            Long userId = authUtils.validateAndExtractUserId(authHeader);
+            if (userId == null) {
                 logger.warn("Unauthorized attempt to update force: {}", id);
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("message", "Authentication required"));
             }
             
-            ForceResponse force = forceService.updateForce(id, request, googleUserId);
+            ForceResponse force = forceService.updateForce(id, request, userId);
             return ResponseEntity.ok(force);
             
         } catch (RuntimeException e) {
@@ -171,15 +171,15 @@ public class ForceController {
         try {
             logger.info("API request to delete force: {}", id);
             
-            // Extract Google user ID from Authorization header
-            String googleUserId = extractUserIdFromAuth(authHeader);
-            if (googleUserId == null) {
+            // Extract user ID from Authorization header
+            Long userId = authUtils.validateAndExtractUserId(authHeader);
+            if (userId == null) {
                 logger.warn("Unauthorized attempt to delete force: {}", id);
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("message", "Authentication required"));
             }
             
-            forceService.deleteForce(id, googleUserId);
+            forceService.deleteForce(id, userId);
             return ResponseEntity.ok(Map.of("message", "Force deleted successfully"));
             
         } catch (RuntimeException e) {
@@ -193,22 +193,5 @@ public class ForceController {
         }
     }
     
-    /**
-     * Extract Google user ID from Authorization header
-     */
-    private String extractUserIdFromAuth(String authHeader) {
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            String token = authHeader.substring(7);
-            try {
-                Optional<Map<String, Object>> userInfo = jwtService.validateToken(token);
-                if (userInfo.isPresent()) {
-                    return (String) userInfo.get().get("googleId");
-                }
-            } catch (Exception e) {
-                logger.warn("Failed to extract user ID from token: {}", e.getMessage());
-            }
-        }
-        return null;
-    }
 }
 
