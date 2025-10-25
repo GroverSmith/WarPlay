@@ -89,7 +89,7 @@ public class ArmyService {
         }
         
         // Log the creation
-        loggingService.logUserAction(userId, "CREATE_ARMY", 
+        loggingService.logUserAction(userId.toString(), "CREATE_ARMY", 
             String.format("Created army '%s' for force '%s'", army.getName(), force.getName()));
         
         return convertToResponse(army);
@@ -184,7 +184,7 @@ public class ArmyService {
         }
         
         // Log the update
-        loggingService.logUserAction(userId, "UPDATE_ARMY", 
+        loggingService.logUserAction(userId.toString(), "UPDATE_ARMY", 
             String.format("Updated army '%s'", army.getName()));
         
         return convertToResponse(army);
@@ -210,7 +210,7 @@ public class ArmyService {
         armyUnitRepository.deleteByArmyId(armyId);
         
         // Log the deletion
-        loggingService.logUserAction(userId, "DELETE_ARMY", 
+        loggingService.logUserAction(userId.toString(), "DELETE_ARMY", 
             String.format("Deleted army '%s'", army.getName()));
     }
     
