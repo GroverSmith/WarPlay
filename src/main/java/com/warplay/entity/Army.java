@@ -20,15 +20,6 @@ public class Army {
     @Column(name = "name", nullable = false, length = 200)
     private String name;
     
-    @Column(name = "faction", length = 100)
-    private String faction;
-    
-    @Column(name = "detachment", length = 100)
-    private String detachment;
-    
-    @Column(name = "mfm_version", length = 20)
-    private String mfmVersion;
-    
     @Column(name = "points", nullable = false)
     private Integer points;
     
@@ -107,30 +98,6 @@ public class Army {
     
     public void setName(String name) {
         this.name = name;
-    }
-    
-    public String getFaction() {
-        return faction;
-    }
-    
-    public void setFaction(String faction) {
-        this.faction = faction;
-    }
-    
-    public String getDetachment() {
-        return detachment;
-    }
-    
-    public void setDetachment(String detachment) {
-        this.detachment = detachment;
-    }
-    
-    public String getMfmVersion() {
-        return mfmVersion;
-    }
-    
-    public void setMfmVersion(String mfmVersion) {
-        this.mfmVersion = mfmVersion;
     }
     
     public Integer getPoints() {

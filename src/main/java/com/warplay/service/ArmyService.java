@@ -64,9 +64,6 @@ public class ArmyService {
         army.setForceId(request.getForceId());
         army.setUserId(userId);
         army.setName(request.getName());
-        army.setFaction(request.getFaction());
-        army.setDetachment(request.getDetachment());
-        army.setMfmVersion(request.getMfmVersion());
         army.setPoints(request.getPoints());
         army.setArmyType(request.getArmyType());
         army.setArmyText(request.getArmyText());
@@ -173,9 +170,6 @@ public class ArmyService {
         
         Army army = armyOpt.get();
         army.setName(request.getName());
-        army.setFaction(request.getFaction());
-        army.setDetachment(request.getDetachment());
-        army.setMfmVersion(request.getMfmVersion());
         army.setPoints(request.getPoints());
         army.setArmyType(request.getArmyType());
         army.setArmyText(request.getArmyText());
@@ -239,9 +233,6 @@ public class ArmyService {
         response.setForceId(army.getForceId());
         response.setUserId(army.getUserId());
         response.setName(army.getName());
-        response.setFaction(army.getFaction());
-        response.setDetachment(army.getDetachment());
-        response.setMfmVersion(army.getMfmVersion());
         response.setPoints(army.getPoints());
         response.setArmyType(army.getArmyType());
         response.setArmyText(army.getArmyText());

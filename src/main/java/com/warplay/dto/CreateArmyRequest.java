@@ -5,9 +5,6 @@ import java.util.List;
 public class CreateArmyRequest {
     private Long forceId;
     private String name;
-    private String faction;
-    private String detachment;
-    private String mfmVersion;
     private Integer points;
     private String armyType; // 'paste' or 'build'
     private String armyText; // For paste mode
@@ -96,30 +93,6 @@ public class CreateArmyRequest {
     
     public void setName(String name) {
         this.name = name;
-    }
-    
-    public String getFaction() {
-        return faction;
-    }
-    
-    public void setFaction(String faction) {
-        this.faction = faction;
-    }
-    
-    public String getDetachment() {
-        return detachment;
-    }
-    
-    public void setDetachment(String detachment) {
-        this.detachment = detachment;
-    }
-    
-    public String getMfmVersion() {
-        return mfmVersion;
-    }
-    
-    public void setMfmVersion(String mfmVersion) {
-        this.mfmVersion = mfmVersion;
     }
     
     public Integer getPoints() {
