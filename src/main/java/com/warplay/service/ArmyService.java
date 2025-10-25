@@ -145,6 +145,24 @@ public class ArmyService {
     }
     
     /**
+     * Get all armies for a force (public access - no authentication required)
+     */
+    public List<ArmyResponse> getArmiesByForceIdPublic(Long forceId) {
+        logger.info("Getting armies for force (public): {}", forceId);
+        
+        // Validate force exists
+        Optional<Force> forceOpt = forceRepository.findById(forceId);
+        if (forceOpt.isEmpty()) {
+            throw new IllegalArgumentException("Force not found");
+        }
+        
+        List<Army> armies = armyRepository.findByForceId(forceId);
+        return armies.stream()
+                .map(this::convertToResponse)
+                .collect(Collectors.toList());
+    }
+    
+    /**
      * Get all armies for a user
      */
     public List<ArmyResponse> getArmiesByUserId(Long userId) {

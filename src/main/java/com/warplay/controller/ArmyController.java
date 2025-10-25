@@ -87,7 +87,7 @@ public class ArmyController {
     }
     
     /**
-     * Get all armies for a force
+     * Get all armies for a force (public access - no authentication required)
      */
     @GetMapping
     public ResponseEntity<?> getArmiesByForce(
@@ -97,18 +97,18 @@ public class ArmyController {
         try {
             logger.info("API request to get armies for force: {}", forceId);
             
-            // Extract user ID from Authorization header
-            Long userId = authUtils.validateAndExtractUserId(authHeader);
-            if (userId == null) {
-                logger.warn("Unauthorized attempt to get armies");
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(Map.of("message", "Authentication required"));
-            }
-            
             List<ArmyResponse> armies;
             if (forceId != null) {
-                armies = armyService.getArmiesByForceId(forceId, userId);
+                // Get armies by force ID (public access)
+                armies = armyService.getArmiesByForceIdPublic(forceId);
             } else {
+                // Get armies for authenticated user only
+                Long userId = authUtils.validateAndExtractUserId(authHeader);
+                if (userId == null) {
+                    logger.warn("Authentication required to get all armies");
+                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(Map.of("message", "Authentication required"));
+                }
                 armies = armyService.getArmiesByUserId(userId);
             }
             
