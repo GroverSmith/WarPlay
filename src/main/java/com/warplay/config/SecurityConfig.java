@@ -47,6 +47,16 @@ public class SecurityConfig {
                 .requestMatchers("/api/forces/club/{clubId}").permitAll()
                 .requestMatchers("/api/forces/user/{userId}").permitAll()
                 
+                // Public read-only army endpoints
+                .requestMatchers("/api/armies/{id}").permitAll()
+                .requestMatchers("/api/armies").permitAll()
+                
+                // Public read-only unit endpoints
+                .requestMatchers("/api/units/{id}").permitAll()
+                .requestMatchers("/api/units/force/{forceId}").permitAll()
+                .requestMatchers("/api/units/user/{userId}").permitAll()
+                .requestMatchers("/api/units").permitAll()
+                
                 // Public read-only user-club endpoints
                 .requestMatchers("/api/user-clubs/club/{clubId}").permitAll()
                 .requestMatchers("/api/user-clubs/user/{userId}").permitAll()
