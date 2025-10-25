@@ -21,6 +21,7 @@ public class CrusadeResponse {
     private String narrativeBlock1;
     private String narrativeBlock2;
     private String narrativeBlock3;
+    private String imageUrl;
     private LocalDateTime createdTimestamp;
 
     // Constructors
@@ -42,6 +43,7 @@ public class CrusadeResponse {
         this.narrativeBlock1 = crusade.getNarrativeBlock1();
         this.narrativeBlock2 = crusade.getNarrativeBlock2();
         this.narrativeBlock3 = crusade.getNarrativeBlock3();
+        this.imageUrl = crusade.getImageUrl();
         this.createdTimestamp = crusade.getCreatedTimestamp();
     }
 

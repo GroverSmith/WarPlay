@@ -63,7 +63,10 @@ public class Crusade {
 
     @Column(name = "narrative_block_3", columnDefinition = "TEXT")
     private String narrativeBlock3;
-
+    
+    @Column(name = "image_url", columnDefinition = "TEXT")
+    private String imageUrl;
+    
     @CreationTimestamp
     @Column(name = "created_timestamp", nullable = false, updatable = false)
     private LocalDateTime createdTimestamp;
@@ -225,7 +228,15 @@ public class Crusade {
     public void setNarrativeBlock3(String narrativeBlock3) {
         this.narrativeBlock3 = narrativeBlock3;
     }
-
+    
+    public String getImageUrl() {
+        return imageUrl;
+    }
+    
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+    
     public LocalDateTime getCreatedTimestamp() {
         return createdTimestamp;
     }
