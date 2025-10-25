@@ -12,6 +12,7 @@ public class CreateArmyRequest {
     private String armyType; // 'paste' or 'build'
     private String armyText; // For paste mode
     private String notes;
+    private String imageUrl;
     private List<SelectedUnit> selectedUnits; // For build mode
     
     // Nested class for selected units in build mode
@@ -151,6 +152,14 @@ public class CreateArmyRequest {
     
     public void setNotes(String notes) {
         this.notes = notes;
+    }
+    
+    public String getImageUrl() {
+        return imageUrl;
+    }
+    
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
     
     public List<SelectedUnit> getSelectedUnits() {

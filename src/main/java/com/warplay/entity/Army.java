@@ -41,6 +41,9 @@ public class Army {
     @Column(name = "notes", columnDefinition = "TEXT")
     private String notes;
     
+    @Column(name = "image_url", columnDefinition = "TEXT")
+    private String imageUrl;
+    
     @Column(name = "created_timestamp", nullable = false, updatable = false)
     private LocalDateTime createdTimestamp;
     
@@ -160,6 +163,14 @@ public class Army {
     
     public void setNotes(String notes) {
         this.notes = notes;
+    }
+    
+    public String getImageUrl() {
+        return imageUrl;
+    }
+    
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
     
     public LocalDateTime getCreatedTimestamp() {

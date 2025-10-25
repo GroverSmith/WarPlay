@@ -15,6 +15,7 @@ public class ArmyResponse {
     private String armyType;
     private String armyText;
     private String notes;
+    private String imageUrl;
     private LocalDateTime createdTimestamp;
     private LocalDateTime updatedTimestamp;
     private List<ArmyUnitResponse> units; // For build mode
@@ -172,6 +173,14 @@ public class ArmyResponse {
     
     public void setNotes(String notes) {
         this.notes = notes;
+    }
+    
+    public String getImageUrl() {
+        return imageUrl;
+    }
+    
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
     
     public LocalDateTime getCreatedTimestamp() {

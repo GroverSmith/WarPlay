@@ -71,6 +71,7 @@ public class ArmyService {
         army.setArmyType(request.getArmyType());
         army.setArmyText(request.getArmyText());
         army.setNotes(request.getNotes());
+        army.setImageUrl(request.getImageUrl());
         
         // Save army
         army = armyRepository.save(army);
@@ -104,6 +105,20 @@ public class ArmyService {
         Optional<Army> armyOpt = armyRepository.findByIdAndUserId(armyId, userId);
         if (armyOpt.isEmpty()) {
             throw new IllegalArgumentException("Army not found or access denied");
+        }
+        
+        return convertToResponse(armyOpt.get());
+    }
+    
+    /**
+     * Get army by ID (public access - no authentication required)
+     */
+    public ArmyResponse getArmyByIdPublic(Long armyId) {
+        logger.info("Getting army (public): {}", armyId);
+        
+        Optional<Army> armyOpt = armyRepository.findById(armyId);
+        if (armyOpt.isEmpty()) {
+            throw new IllegalArgumentException("Army not found");
         }
         
         return convertToResponse(armyOpt.get());
@@ -165,6 +180,7 @@ public class ArmyService {
         army.setArmyType(request.getArmyType());
         army.setArmyText(request.getArmyText());
         army.setNotes(request.getNotes());
+        army.setImageUrl(request.getImageUrl());
         
         army = armyRepository.save(army);
         
@@ -230,6 +246,7 @@ public class ArmyService {
         response.setArmyType(army.getArmyType());
         response.setArmyText(army.getArmyText());
         response.setNotes(army.getNotes());
+        response.setImageUrl(army.getImageUrl());
         response.setCreatedTimestamp(army.getCreatedTimestamp());
         response.setUpdatedTimestamp(army.getUpdatedTimestamp());
         

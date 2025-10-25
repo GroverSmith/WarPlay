@@ -64,25 +64,15 @@ public class ArmyController {
     }
     
     /**
-     * Get army by ID
+     * Get army by ID (public access - no authentication required)
      */
     @GetMapping("/{id}")
-    public ResponseEntity<?> getArmy(
-            @PathVariable Long id,
-            @RequestHeader(value = "Authorization", required = false) String authHeader) {
+    public ResponseEntity<?> getArmy(@PathVariable Long id) {
         
         try {
             logger.info("API request to get army: {}", id);
             
-            // Extract user ID from Authorization header
-            Long userId = authUtils.validateAndExtractUserId(authHeader);
-            if (userId == null) {
-                logger.warn("Unauthorized attempt to get army");
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(Map.of("message", "Authentication required"));
-            }
-            
-            ArmyResponse army = armyService.getArmyById(id, userId);
+            ArmyResponse army = armyService.getArmyByIdPublic(id);
             return ResponseEntity.ok(army);
             
         } catch (IllegalArgumentException e) {
