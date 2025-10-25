@@ -215,7 +215,7 @@ public class ArmyController {
         
         try {
             String token = authHeader.substring(7);
-            return jwtService.extractUserIdFromToken(token);
+            return jwtService.extractUserId(token);
         } catch (Exception e) {
             logger.warn("Error extracting user ID from token: {}", e.getMessage());
             return null;
